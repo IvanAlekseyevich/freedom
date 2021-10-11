@@ -1,8 +1,10 @@
 from django.http import HttpResponse
+from django.shortcuts import render
 
 
 def index(request):
-    return HttpResponse('Нет страницы')
+    template = 'posts/index.html'
+    return render(request, template)
 
 
 # В урл мы ждем парметр, и нужно его прередать в функцию для использования
