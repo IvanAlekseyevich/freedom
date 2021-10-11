@@ -1,10 +1,9 @@
-from django.http import HttpResponse
 from django.shortcuts import render
 
 
 def index(request):
     template = 'posts/index.html'
-    text = 'Это главная страница проекта Yatube'
+    text = 'Последние обновления на сайте'
     context = {
         'text': text,
     }
@@ -12,9 +11,9 @@ def index(request):
 
 
 # В урл мы ждем парметр, и нужно его прередать в функцию для использования
-def group_posts(request, slug):
+def group_posts(request):
     template = 'posts/group_list.html'
-    text = 'Здесь будет информация о группах проекта Yatube'
+    text = 'Лев Толстой – зеркало русской революции.'
     context = {
         'text': text,
     }
