@@ -1,4 +1,5 @@
 from django.contrib import admin
+<<<<<<< HEAD
 from .models import Post, Group
 
 
@@ -23,3 +24,7 @@ class PostAdmin(admin.ModelAdmin):
 # класс PostAdmin
 admin.site.register(Post, PostAdmin)
 admin.site.register(Group)
+=======
+
+# Register your models here.
+>>>>>>> parent of 5487f2c (Added admin and post (test))

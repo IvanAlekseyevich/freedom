@@ -1,6 +1,6 @@
 from django.db import models
-from django.contrib.auth import get_user_model
 
+<<<<<<< HEAD
 
 User = get_user_model()
 
@@ -22,3 +22,6 @@ class Group(models.Model):
     description = models.TextField()
     def __str__(self):
         return self.title
+=======
+# Create your models here.
+>>>>>>> parent of 5487f2c (Added admin and post (test))
