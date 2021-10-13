@@ -1,7 +1,6 @@
 from django.db import models
+from django.contrib.auth import get_user_model
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 User = get_user_model()
 
 
@@ -12,10 +11,12 @@ class Post(models.Model):
         User,
         on_delete=models.CASCADE,
         related_name='posts'
-    ) 
-=======
-# Create your models here.
->>>>>>> parent of 5487f2c (Added admin and post (test))
-=======
-# Create your models here.
->>>>>>> parent of 5487f2c (Added admin and post (test))
+    )
+    group = models.TextField(null=True, blank=True)
+
+class Group(models.Model):
+    title = models.TextField()
+    slug = models.SlugField()
+    description = models.TextField()
+    def __str__(self):
+        return self.title
