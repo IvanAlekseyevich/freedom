@@ -1,6 +1,7 @@
 from django.db import models
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 User = get_user_model()
 
 
@@ -12,6 +13,9 @@ class Post(models.Model):
         on_delete=models.CASCADE,
         related_name='posts'
     ) 
+=======
+# Create your models here.
+>>>>>>> parent of 5487f2c (Added admin and post (test))
 =======
 # Create your models here.
 >>>>>>> parent of 5487f2c (Added admin and post (test))

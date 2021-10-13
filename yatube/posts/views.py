@@ -1,8 +1,11 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 from django.http import HttpResponse
 # Импортируем модель, чтобы обратиться к ней
 from .models import Post
 =======
+=======
+>>>>>>> parent of 5487f2c (Added admin and post (test))
 from django.shortcuts import render
 
 >>>>>>> parent of 5487f2c (Added admin and post (test))
@@ -24,9 +27,12 @@ def group_posts(request, slug):
         'text': text,
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
     return render(request, 'posts/group_list.html', context) 
 
 =======
+=======
+>>>>>>> parent of 5487f2c (Added admin and post (test))
     return render(request, template, context) 
 
 def group_list(request):
@@ -35,5 +41,9 @@ def group_list(request):
     context = {
         'text': text,
     }
+<<<<<<< HEAD
+    return render(request, template, context) 
+>>>>>>> parent of 5487f2c (Added admin and post (test))
+=======
     return render(request, template, context) 
 >>>>>>> parent of 5487f2c (Added admin and post (test))
