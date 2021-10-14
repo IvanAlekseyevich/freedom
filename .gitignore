@@ -128,3 +128,8 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+yatube/templates — копия/posts/index.html
+yatube/templates — копия/posts/group_list.html
+yatube/templates — копия/includes/header.html
+yatube/templates — копия/includes/footer.html
+yatube/templates — копия/base.html
