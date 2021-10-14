@@ -3,20 +3,24 @@
 <title>Последние обновления на сайте</title>
 {% endblock %}
 {% block content %}
-<article>
-{% for post in posts %}
-  <ul>
-    <li>
-      Автор: {{ post.author.get_full_name }}
-    </li>
-    <li>
-      Дата публикации: {{ post.pub_date|date:"d E Y" }}
-    </li>
-  </ul>
-  <p>{{ post.text }}</p>    
-  <a href="{{ post.get_absolute_url}}">все записи группы</a>
-  {% if not forloop.last %}<hr>{% endif %}
-{% endfor %} 
-</article>
-<!-- под последним постом нет линии -->
+<!-- класс py-5 создает отступы сверху и снизу блока -->
+<div class="container py-5">
+  <h1>Последние обновления на сайте</h1>
+  <article>
+  {% for post in posts %}
+    <ul>
+      <li>
+        Автор: {{ post.author.get_full_name }}
+      </li>
+      <li>
+        Дата публикации: {{ post.pub_date|date:"d E Y" }}
+      </li>
+    </ul>
+    <p>{{ post.text }}</p>
+    <a href="{{ post.get_absolute_url}}">все записи группы</a>
+    {% if not forloop.last %}<hr>{% endif %}
+  {% endfor %}
+  </article>
+  <!-- под последним постом нет линии -->
+</div>
 {% endblock %}
