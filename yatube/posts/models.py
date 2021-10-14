@@ -13,10 +13,13 @@ class Post(models.Model):
         related_name='posts'
     )
     group = models.TextField(null=True, blank=True)
+    def get_absolute_url(self):
+        return f'/group/{self.group}/'
 
 class Group(models.Model):
     title = models.TextField()
-    slug = models.SlugField()
+    slug = models.SlugField(unique=True)
     description = models.TextField()
     def __str__(self):
         return self.title
+    

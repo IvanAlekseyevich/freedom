@@ -14,7 +14,7 @@
     </li>
   </ul>
   <p>{{ post.text }}</p>    
-  <a href="">все записи группы</a>
+  <a href="{{ post.get_absolute_url}}">все записи группы</a>
   {% if not forloop.last %}<hr>{% endif %}
 {% endfor %} 
 </article>
