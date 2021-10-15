@@ -134,3 +134,12 @@ yatube/templates — копия/posts/group_list.html
 yatube/templates — копия/includes/header.html
 yatube/templates — копия/includes/footer.html
 yatube/templates — копия/base.html
+yatube/db — копия.sqlite3
+yatube/posts/migrations — копия/0001_initial.py
+yatube/posts/migrations — копия/0002_auto_20211013_1459.py
+yatube/posts/migrations — копия/0003_auto_20211014_1443.py
+yatube/posts/migrations — копия/0004_auto_20211014_1613.py
+yatube/posts/migrations — копия/0005_auto_20211014_1652.py
+yatube/posts/migrations — копия/0006_auto_20211015_0046.py
+yatube/posts/migrations — копия/__init__.py
+yatube/posts/models — копия.py
