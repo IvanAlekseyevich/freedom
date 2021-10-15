@@ -127,6 +127,7 @@ venv.bak/
 dmypy.json
 
 # Pyre type checker
+Work.py
 .pyre/
 yatube/templates — копия/posts/index.html
 yatube/templates — копия/posts/group_list.html
