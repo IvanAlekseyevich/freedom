@@ -1,10 +1,10 @@
 # yatube_project
-Социальная сеть блогеров
+Учебный проект
 ### Описание
 В разработке
 ### Технологии
 Python 3.9
-Django 2.2.19
+Django 2.2.9
 ### Запуск проекта в dev-режиме
 - Установите и активируйте виртуальное окружение
 - Установите зависимости из файла requirements.txt
@@ -16,4 +16,10 @@ pip install -r requirements.txt
 python manage.py runserver
 ```
 ### Авторы
-https://github.com/pozarnik
+[pozarnik][link]
+
+## License
+
+MIT
+
+   [link]: <https://github.com/pozarnik/>
