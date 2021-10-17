@@ -125,6 +125,10 @@ venv.bak/
 .mypy_cache/
 .dmypy.json
 dmypy.json
+yatube/static/
 
 # Pyre type checker
 .pyre/
+
+# Temp
+Work.py
