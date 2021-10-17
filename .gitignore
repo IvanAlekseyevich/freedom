@@ -132,3 +132,7 @@ yatube/static/
 
 # Temp
 Work.py
+pytest.ini
+setup.cfg
+tests/
+.github/workflows/python-app.yml
