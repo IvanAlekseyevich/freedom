@@ -1,6 +1,6 @@
 from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Post, Group
+from .models import Post, Group, User
 
 
 def authorized_only(func):
@@ -52,4 +52,30 @@ def group_posts(request, slug):
         'page_obj': page_obj,
     }
     return render(request, template, context) 
-    
+
+def profile(request, username):
+    template = 'posts/profile.html'
+    user = get_object_or_404(User, username=username)
+    post_list = Post.objects.filter(author=user)
+    count= post_list.count()
+    paginator = Paginator(post_list, 10) 
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    context = {
+        'username': user,
+        'count': count,
+        'page_obj': page_obj,
+    }
+    return render(request, template, context)
+
+
+def post_detail(request, post_id):
+    template = 'posts/post_detail.html'
+    post = get_object_or_404(Post, id=post_id)
+    post_detail = Post.objects.get(pk=post.id)
+    count = Post.objects.filter(author=post.author).count()
+    context = {
+        'count': count,
+        'post_detail': post_detail,
+    }
+    return render(request, template, context)
