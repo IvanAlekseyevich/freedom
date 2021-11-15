@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Пост <!-- Первые 30 букв поста -->{% endblock %}
+{% block title %}Пост {{ post_detail.text|slice:":30" }}{% endblock %}
 {% block content %}  
 <aside class="col-12 col-md-3">
   <ul class="list-group list-group-flush">
