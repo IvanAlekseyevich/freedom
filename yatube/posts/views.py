@@ -120,4 +120,6 @@ def post_create(request):
     # пусть пользователь напишет что-нибудь
     form = PostForm()
     return render(request, 'posts/create_post.html', {'form': form}) 
-    
+
+def post_edit():
+    pass
