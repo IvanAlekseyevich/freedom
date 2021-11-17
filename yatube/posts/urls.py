@@ -11,6 +11,8 @@ urlpatterns = [
     path('profile/<str:username>/', views.profile, name='profile'),
     # Просмотр записи
     path('posts/<int:post_id>/', views.post_detail, name='post_detail'),
+    # Изменение записи
+    path('/posts/<int:post_id>/edit/', views.post_edit, name='post_edit'),
     # Создание записи
     path('create/', views.post_create, name='post_create'),
 ]
