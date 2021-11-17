@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Новый пост{% endblock %}
+{% block content %}
+        <div class="row justify-content-center">
+          <div class="col-md-8 p-5">
+            <div class="card">
+              <div class="card-header">       
+                Новый пост             
+              </div>
+              <div class="card-body">        
+                <form method="post" action="{% url 'posts:post_create' %}">
+                  {% csrf_token %}            
+                  <div class="form-group row my-3 p-3">
+                    <label>
+                      Текст поста 
+                      <span class="required text-danger" >*</span> 
+                    </label>
+                    {{ form.text}}                
+                    <small id="id_text-help" class="form-text text-muted">
+                      Текст нового поста
+                    </small>                  
+                  </div>            
+                  <div class="form-group row my-3 p-3">
+                    <label>
+                      Group
+                    </label>
+                    {{ form.group}}
+                    <small id="id_group-help" class="form-text text-muted">
+                      Группа, к которой будет относиться пост
+                    </small>
+                  </div>
+                  <div class="d-flex justify-content-end">
+                    <input type="submit" class="btn btn-primary">
+                    </input>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+{% endblock %}
