@@ -1,6 +1,14 @@
 from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Post, Group, User
+from .forms import PostForm
+# users/views.py
+# Импортируем CreateView, чтобы создать ему наследника
+
+# Функция reverse_lazy позволяет получить URL по параметрам функции path()
+# Берём, тоже пригодится
+
+# Импортируем класс формы, чтобы сослаться на неё во view-классе
 
 
 def authorized_only(func):
@@ -15,7 +23,6 @@ def authorized_only(func):
         # Если пользователь не авторизован — отправим его на страницу логина.
         return redirect('/auth/login/')        
     return check_user
-
 
 def index(request):
     template = 'posts/index.html'
@@ -68,7 +75,6 @@ def profile(request, username):
     }
     return render(request, template, context)
 
-
 def post_detail(request, post_id):
     template = 'posts/post_detail.html'
     post = get_object_or_404(Post, id=post_id)
@@ -79,3 +85,39 @@ def post_detail(request, post_id):
         'post_detail': post_detail,
     }
     return render(request, template, context)
+
+def post_create(request):
+    # Проверяем, получен POST-запрос или какой-то другой:
+    if request.method == 'POST':
+        # Создаём объект формы класса ContactForm
+        # и передаём в него полученные данные
+        form = PostForm(request.POST)
+
+        # Если все данные формы валидны - работаем с "очищенными данными" формы
+        if form.is_valid():
+            # Берём валидированные данные формы из словаря form.cleaned_data
+            # text = form.cleaned_data['text']
+            # group = form.cleaned_data['group']
+            # При необходимости обрабатываем данные
+            new_post = Post.objects.create(author=request.user, text=form.cleaned_data['text'], group=form.cleaned_data['group'])
+            # сохраняем объект в базу
+            new_post.save()
+            
+            # Функция redirect перенаправляет пользователя 
+            # на другую страницу сайта, чтобы защититься 
+            # от повторного заполнения формы
+            return redirect (f'/profile/{request.user}/')
+
+        # Если условие if form.is_valid() ложно и данные не прошли валидацию - 
+        # передадим полученный объект в шаблон,
+        # чтобы показать пользователю информацию об ошибке
+
+        # Заодно заполним все поля формы данными, прошедшими валидацию, 
+        # чтобы не заставлять пользователя вносить их повторно
+        return render(request, 'posts/create_post.html', {'form': form})
+
+    # Если пришёл не POST-запрос - создаём и передаём в шаблон пустую форму
+    # пусть пользователь напишет что-нибудь
+    form = PostForm()
+    return render(request, 'posts/create_post.html', {'form': form}) 
+    
