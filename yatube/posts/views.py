@@ -83,6 +83,7 @@ def post_detail(request, post_id):
     context = {
         'count': count,
         'post_detail': post_detail,
+        'post': post,
     }
     return render(request, template, context)
 
@@ -96,10 +97,14 @@ def post_create(request):
         # Если все данные формы валидны - работаем с "очищенными данными" формы
         if form.is_valid():
             # Берём валидированные данные формы из словаря form.cleaned_data
-            # text = form.cleaned_data['text']
-            # group = form.cleaned_data['group']
+            text = form.cleaned_data['text']
+            group = form.cleaned_data['group']
             # При необходимости обрабатываем данные
-            new_post = Post.objects.create(author=request.user, text=form.cleaned_data['text'], group=form.cleaned_data['group'])
+            new_post = Post.objects.create(
+                author=request.user, 
+                text=text, 
+                group=group
+            )
             # сохраняем объект в базу
             new_post.save()
             
@@ -121,5 +126,29 @@ def post_create(request):
     form = PostForm()
     return render(request, 'posts/create_post.html', {'form': form}) 
 
-def post_edit():
-    pass
+def post_edit(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    if request.user == post.author:
+        data = {
+            '1' : '1', 
+            'text' : post.text,
+            'group' : post.group,
+        }
+        form = PostForm(data)
+        if form.is_valid():
+            text = form.cleaned_data['text']
+            group = form.cleaned_data['group']
+            # При необходимости обрабатываем данные
+            post.text = text
+            post.group = group
+            # сохраняем объект в базу
+            post.save()
+            
+            # Функция redirect перенаправляет пользователя 
+            # на другую страницу сайта, чтобы защититься 
+            # от повторного заполнения формы
+            return redirect (f'/profile/{request.user}/')
+
+        return render(request, 'posts/create_post1.html', {'form': form})
+    return redirect (f'/posts/{post_id}/')
+
