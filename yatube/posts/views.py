@@ -3,10 +3,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from .models import Post, Group, User
 from .forms import PostForm
 # users/views.py
-# Импортируем CreateView, чтобы создать ему наследника
 
-# Функция reverse_lazy позволяет получить URL по параметрам функции path()
-# Берём, тоже пригодится
 
 # Импортируем класс формы, чтобы сослаться на неё во view-классе
 
@@ -57,6 +54,7 @@ def group_posts(request, slug):
     page_obj = paginator.get_page(page_number)
     context = {
         'page_obj': page_obj,
+        'group': group,
     }
     return render(request, template, context) 
 
@@ -88,6 +86,7 @@ def post_detail(request, post_id):
     return render(request, template, context)
 
 def post_create(request):
+    template = 'posts/create_post.html'
     # Проверяем, получен POST-запрос или какой-то другой:
     if request.method == 'POST':
         # Создаём объект формы класса ContactForm
@@ -119,36 +118,30 @@ def post_create(request):
 
         # Заодно заполним все поля формы данными, прошедшими валидацию, 
         # чтобы не заставлять пользователя вносить их повторно
-        return render(request, 'posts/create_post.html', {'form': form})
+        return render(request, template, {'form': form})
 
     # Если пришёл не POST-запрос - создаём и передаём в шаблон пустую форму
     # пусть пользователь напишет что-нибудь
     form = PostForm()
-    return render(request, 'posts/create_post.html', {'form': form}) 
+    return render(request, template, {'form': form}) 
 
 def post_edit(request, post_id):
+    template = 'posts/create_post.html'
     post = get_object_or_404(Post, id=post_id)
-    if request.user == post.author:
-        data = {
-            '1' : '1', 
-            'text' : post.text,
-            'group' : post.group,
-        }
-        form = PostForm(data)
+    if request.method == 'GET':
+        if request.user != post.author:
+            return redirect (f'/posts/{post_id}/')
+        form = PostForm(instance=post)
+    if request.method == 'POST':
+        form = PostForm(request.POST, instance=post)
+        if request.user != post.author:
+            return redirect (f'/posts/{post_id}/')
         if form.is_valid():
-            text = form.cleaned_data['text']
-            group = form.cleaned_data['group']
-            # При необходимости обрабатываем данные
-            post.text = text
-            post.group = group
-            # сохраняем объект в базу
-            post.save()
-            
-            # Функция redirect перенаправляет пользователя 
-            # на другую страницу сайта, чтобы защититься 
-            # от повторного заполнения формы
-            return redirect (f'/profile/{request.user}/')
-
-        return render(request, 'posts/create_post1.html', {'form': form})
-    return redirect (f'/posts/{post_id}/')
-
+            form.save()
+        return redirect (f'/posts/{post_id}/')
+    context = {
+        'form': form,
+        'post_id': post_id,
+        'is_edit': 'is_edit',
+    }
+    return render(request, template, context)
