@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
-{% block title %}Новый пост{% endblock %}
+{% block title %}
+{% if is_edit %}Редактирование записи{% else %}Новый пост{% endif %}
+{% endblock %}
 {% block content %}
         <div class="row justify-content-center">
           <div class="col-md-8 p-5">
@@ -8,7 +10,13 @@
                 Новый пост             
               </div>
               <div class="card-body">        
-                <form method="post" action="{% url 'posts:post_create' %}">
+                <form method="post" action="
+                {% if is_edit %}
+                  {% url 'posts:post_edit' post_id %}
+                {% else %}
+                  {% url 'posts:post_create' %}
+                {% endif %}      
+                ">
                   {% csrf_token %}            
                   <div class="form-group row my-3 p-3">
                     <label>
@@ -31,7 +39,11 @@
                   </div>
                   <div class="d-flex justify-content-end">
                     <button type="submit" class="btn btn-primary">
-                      Добавить запись
+                      {% if is_edit %}
+                        Сохранить запись
+                      {% else %}
+                        Добавить запись
+                      {% endif %} 
                     </button>
                   </div>
                 </form>
