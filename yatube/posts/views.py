@@ -1,21 +1,22 @@
 from django.core.paginator import Paginator
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Post, Group, User
 from .forms import PostForm
 
 
-def authorized_only(func):
-    # Функция-обёртка в декораторе может быть названа как угодно
-    def check_user(request, *args, **kwargs):
-        # В любую view-функции первым аргументом передаётся объект request,
-        # в котором есть булева переменная is_authenticated,
-        # определяющая, авторизован ли пользователь.
-        if request.user.is_authenticated:
-            # Возвращает view-функцию, если пользователь авторизован.
-            return func(request, *args, **kwargs)
-        # Если пользователь не авторизован — отправим его на страницу логина.
-        return redirect('/auth/login/')        
-    return check_user
+# def authorized_only(func):
+#     # Функция-обёртка в декораторе может быть названа как угодно
+#     def check_user(request, *args, **kwargs):
+#         # В любую view-функции первым аргументом передаётся объект request,
+#         # в котором есть булева переменная is_authenticated,
+#         # определяющая, авторизован ли пользователь.
+#         if request.user.is_authenticated:
+#             # Возвращает view-функцию, если пользователь авторизован.
+#             return func(request, *args, **kwargs)
+#         # Если пользователь не авторизован — отправим его на страницу логина.
+#         return redirect('/auth/login/')        
+#     return check_user
 
 def index(request):
     post_list = Post.objects.all().order_by('-pub_date')
@@ -81,6 +82,7 @@ def post_detail(request, post_id):
     template = 'posts/post_detail.html'
     return render(request, template, context)
 
+@login_required
 def post_create(request):
     template = 'posts/create_post.html'
     # Проверяем, получен POST-запрос или какой-то другой:
