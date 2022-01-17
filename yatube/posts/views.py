@@ -2,10 +2,6 @@ from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Post, Group, User
 from .forms import PostForm
-# users/views.py
-
-
-# Импортируем класс формы, чтобы сослаться на неё во view-классе
 
 
 def authorized_only(func):
@@ -22,7 +18,6 @@ def authorized_only(func):
     return check_user
 
 def index(request):
-    template = 'posts/index.html'
     post_list = Post.objects.all().order_by('-pub_date')
     # Если порядок сортировки определен в классе Meta модели,
     # запрос будет выглядить так:
@@ -43,10 +38,10 @@ def index(request):
     # context = {
     #     'posts': posts,
     # }
+    template = 'posts/index.html'
     return render(request, template, context) 
 
-def group_posts(request, slug):
-    template = 'posts/group_list.html'
+def group_posts(request, slug): 
     group = get_object_or_404(Group, slug=slug)
     post_list = group.posts.order_by('-pub_date')
     paginator = Paginator(post_list, 10)
@@ -56,10 +51,10 @@ def group_posts(request, slug):
         'page_obj': page_obj,
         'group': group,
     }
+    template = 'posts/group_list.html'
     return render(request, template, context) 
 
 def profile(request, username):
-    template = 'posts/profile.html'
     user = get_object_or_404(User, username=username)
     post_list = Post.objects.filter(author=user)
     count= post_list.count()
@@ -71,10 +66,10 @@ def profile(request, username):
         'count': count,
         'page_obj': page_obj,
     }
+    template = 'posts/profile.html'
     return render(request, template, context)
 
 def post_detail(request, post_id):
-    template = 'posts/post_detail.html'
     post = get_object_or_404(Post, id=post_id)
     post_detail = Post.objects.get(pk=post.id)
     count = Post.objects.filter(author=post.author).count()
@@ -83,6 +78,7 @@ def post_detail(request, post_id):
         'post_detail': post_detail,
         'post': post,
     }
+    template = 'posts/post_detail.html'
     return render(request, template, context)
 
 def post_create(request):
@@ -126,7 +122,6 @@ def post_create(request):
     return render(request, template, {'form': form}) 
 
 def post_edit(request, post_id):
-    template = 'posts/create_post.html'
     post = get_object_or_404(Post, id=post_id)
     if request.method == 'GET':
         if request.user != post.author:
@@ -144,4 +139,5 @@ def post_edit(request, post_id):
         'post_id': post_id,
         'is_edit': 'is_edit',
     }
+    template = 'posts/create_post.html'
     return render(request, template, context)
