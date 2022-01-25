@@ -8,6 +8,8 @@ class Group(models.Model):
     title = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
     description = models.TextField()
+    class Meta:
+        verbose_name_plural = 'Группы постов'
     def __str__(self):
         return self.title
 
@@ -28,5 +30,7 @@ class Post(models.Model):
         null=True,
         related_name='posts'
     )
+    class Meta:
+        verbose_name_plural = 'Посты'
     def __str__(self):
-        return self.text[:15]
+        return self.text
