@@ -11,7 +11,6 @@ class PostForm(forms.ModelForm):
         # укажем, какие поля должны быть видны в форме и в каком порядке
         fields = ('text', 'group')
         labels = {'text':'Введите текст', 'group':'Выберите группу'}
-        help_text = {'text':'Текст поста'}
 
     def clean_subject(self):
         data = self.cleaned_data['text']
