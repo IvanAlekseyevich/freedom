@@ -12,11 +12,11 @@ class PostForm(forms.ModelForm):
         fields = ('text', 'group')
         labels = {'text':'Введите текст', 'group':'Выберите группу'}
 
-    def clean_subject(self):
-        data = self.cleaned_data['text']
-        # Если пользователь не ввел текст считаем это ошибкой
-        if data == '':
-            raise forms.ValidationError('Это поле обязательно к заполнению')
-        # Метод-валидатор обязательно должен вернуть очищенные данные, 
-        # даже если не изменил их
-        return data 
+    # def clean_subject(self):
+    #     data = self.cleaned_data['text']
+    #     # Если пользователь не ввел текст считаем это ошибкой
+    #     if data == '':
+    #         raise forms.ValidationError('Это поле обязательно к заполнению')
+    #     # Метод-валидатор обязательно должен вернуть очищенные данные, 
+    #     # даже если не изменил их
+    #     return data 
