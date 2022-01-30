@@ -94,20 +94,24 @@ def post_create(request):
         # Если все данные формы валидны - работаем с "очищенными данными" формы
         if form.is_valid():
             # Берём валидированные данные формы из словаря form.cleaned_data
-            text = form.cleaned_data['text']
-            group = form.cleaned_data['group']
-            # При необходимости обрабатываем данные
-            new_post = Post.objects.create(
-                author=request.user, 
-                text=text, 
-                group=group
-            )
-            # сохраняем объект в базу
-            new_post.save()
+            # text = form.cleaned_data['text']
+            # group = form.cleaned_data['group']
+            # # При необходимости обрабатываем данные
+            # new_post = Post.objects.create(
+            #     author=request.user, 
+            #     text=text, 
+            #     group=group
+            # )
+            # # сохраняем объект в базу
+            # new_post.save()
             
             # Функция redirect перенаправляет пользователя 
             # на другую страницу сайта, чтобы защититься 
             # от повторного заполнения формы
+            post = form.save(commit=False)
+            post.author = request.user
+            post.text = form.cleaned_data['text']
+            post.save()
             return redirect (f'/profile/{request.user}/')
 
         # Если условие if form.is_valid() ложно и данные не прошли валидацию - 
@@ -125,10 +129,9 @@ def post_create(request):
 
 def post_edit(request, post_id):
     post = get_object_or_404(Post, id=post_id)
-    if request.method == 'GET':
-        if request.user != post.author:
-            return redirect (f'/posts/{post_id}/')
-        form = PostForm(instance=post)
+    if request.method == 'GET' and request.user != post.author:
+        return redirect (f'/posts/{post_id}/')
+    form = PostForm(instance=post)
     if request.method == 'POST':
         form = PostForm(request.POST, instance=post)
         if request.user != post.author:
