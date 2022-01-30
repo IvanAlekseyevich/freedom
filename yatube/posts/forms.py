@@ -14,11 +14,9 @@ class PostForm(forms.ModelForm):
 
     def clean_subject(self):
         data = self.cleaned_data['text']
-
         # Если пользователь не поблагодарил администратора - считаем это ошибкой
         if data == '':
             raise forms.ValidationError('Это поле обязательно к заполнению')
-
         # Метод-валидатор обязательно должен вернуть очищенные данные, 
         # даже если не изменил их
         return data 
