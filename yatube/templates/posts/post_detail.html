@@ -32,4 +32,9 @@
     {{ post_detail.text }}
   </p>
 </article>
+{% if user.is_authenticated and user == post_detail.author %}
+  <div class="d-flex justify-content-end">
+    <a href="{% url 'posts:post_edit' post_detail.id %}" class="btn btn-primary" role="button">Редактировать</a>
+  </div>
+{% endif %} 
 {% endblock %}
