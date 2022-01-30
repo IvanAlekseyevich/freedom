@@ -19,7 +19,7 @@ from .forms import PostForm
 #     return check_user
 
 def index(request):
-    post_list = Post.objects.all().order_by('-pub_date')
+    post_list = Post.objects.all()
     # Если порядок сортировки определен в классе Meta модели,
     # запрос будет выглядить так:
     # post_list = Post.objects.all()
@@ -44,7 +44,7 @@ def index(request):
 
 def group_posts(request, slug): 
     group = get_object_or_404(Group, slug=slug)
-    post_list = group.posts.order_by('-pub_date')
+    post_list = group.posts.all()
     paginator = Paginator(post_list, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -57,7 +57,7 @@ def group_posts(request, slug):
 
 def profile(request, username):
     user = get_object_or_404(User, username=username)
-    post_list = Post.objects.filter(author=user)
+    post_list = user.posts.all()
     count= post_list.count()
     paginator = Paginator(post_list, 10) 
     page_number = request.GET.get('page')
@@ -71,13 +71,13 @@ def profile(request, username):
     return render(request, template, context)
 
 def post_detail(request, post_id):
-    post = get_object_or_404(Post, id=post_id)
-    post_detail = Post.objects.get(pk=post.id)
-    count = Post.objects.filter(author=post.author).count()
+    post_detail = get_object_or_404(Post, id=post_id)
+    # post_detail = Post.objects.get(pk=post.id)
+    count = Post.objects.filter(author=post_detail.author).count()
     context = {
         'count': count,
         'post_detail': post_detail,
-        'post': post,
+        # 'post': post,
     }
     template = 'posts/post_detail.html'
     return render(request, template, context)
