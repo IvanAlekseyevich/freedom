@@ -110,7 +110,7 @@ def post_create(request):
             # от повторного заполнения формы
             post = form.save(commit=False)
             post.author = request.user
-            post.text = form.cleaned_data['text']
+            # post.text = form.cleaned_data['text']
             post.save()
             return redirect (f'/profile/{request.user}/')
 
