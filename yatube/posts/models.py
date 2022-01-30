@@ -8,6 +8,7 @@ class Group(models.Model):
     title = models.CharField(verbose_name='Название группы', max_length=200)
     slug = models.SlugField(verbose_name='Сокращение', unique=True)
     description = models.TextField(verbose_name='Описание группы')
+
     class Meta:
         verbose_name_plural = 'Группы постов'
 
@@ -33,7 +34,9 @@ class Post(models.Model):
         related_name='posts',
         verbose_name='Группа'
     )
+
     class Meta:
+        ordering = ['-pub_date']
         verbose_name_plural = 'Посты'
 
     def __str__(self):
