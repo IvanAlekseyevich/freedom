@@ -1,22 +1,12 @@
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Post, Group, User
 from .forms import PostForm
 
 
-# def authorized_only(func):
-#     # Функция-обёртка в декораторе может быть названа как угодно
-#     def check_user(request, *args, **kwargs):
-#         # В любую view-функции первым аргументом передаётся объект request,
-#         # в котором есть булева переменная is_authenticated,
-#         # определяющая, авторизован ли пользователь.
-#         if request.user.is_authenticated:
-#             # Возвращает view-функцию, если пользователь авторизован.
-#             return func(request, *args, **kwargs)
-#         # Если пользователь не авторизован — отправим его на страницу логина.
-#         return redirect('/auth/login/')        
-#     return check_user
 
 def index(request):
     post_list = Post.objects.all()
@@ -112,7 +102,8 @@ def post_create(request):
             post.author = request.user
             # post.text = form.cleaned_data['text']
             post.save()
-            return redirect (f'/profile/{request.user}/')
+            # return redirect (f'/profile/{request.user}/')
+            return HttpResponseRedirect(reverse('posts:profile', args=(request.user,)))
 
         # Если условие if form.is_valid() ложно и данные не прошли валидацию - 
         # передадим полученный объект в шаблон,
@@ -130,15 +121,18 @@ def post_create(request):
 def post_edit(request, post_id):
     post = get_object_or_404(Post, id=post_id)
     if request.method == 'GET' and request.user != post.author:
-        return redirect (f'/posts/{post_id}/')
+        # return redirect (f'/posts/{post_id}/')
+        return HttpResponseRedirect(reverse('posts:post_detail', args=(post_id,)))
     form = PostForm(instance=post)
     if request.method == 'POST':
         form = PostForm(request.POST, instance=post)
         if request.user != post.author:
-            return redirect (f'/posts/{post_id}/')
+            # return redirect (f'/posts/{post_id}/')
+            return HttpResponseRedirect(reverse('posts:post_detail', args=(post_id,)))
         if form.is_valid():
             form.save()
-        return redirect (f'/posts/{post_id}/')
+        # return redirect (f'/posts/{post_id}/')
+        return HttpResponseRedirect(reverse('posts:post_detail', args=(post_id,)))
     context = {
         'form': form,
         'post_id': post_id,
