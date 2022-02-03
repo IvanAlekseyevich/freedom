@@ -35,6 +35,10 @@ class Post(models.Model):
         verbose_name='Группа'
     )
 
+    def get_descriptiontext(self):
+        return self.text[:15]
+    get_descriptiontext.short_description="Text"
+
     class Meta:
         ordering = ['-pub_date']
         verbose_name_plural = 'Посты'
