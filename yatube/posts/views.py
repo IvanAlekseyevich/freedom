@@ -63,8 +63,8 @@ def post_detail(request, post_id):
 @login_required
 def post_create(request):
     template = 'posts/create_post.html'
-    # Если пришёл GET-запрос - создаём и передаём в шаблон пустую форму
-    if request.method == 'GET':
+    # Если пришёл не POST-запрос - создаём и передаём в шаблон пустую форму
+    if request.method != 'POST':
         form = PostForm()
         return render(request, template, {'form': form})
     form = PostForm(request.POST)
@@ -82,15 +82,14 @@ def post_create(request):
 
 def post_edit(request, post_id):
     post = get_object_or_404(Post, id=post_id)
-    if request.method == 'GET' and request.user != post.author:
+    if request.user != post.author:
         return HttpResponseRedirect(reverse('posts:post_detail', args=(post_id,)))
-    form = PostForm(instance=post)
     if request.method == 'POST':
         form = PostForm(request.POST, instance=post)
-        if request.user != post.author:
-            return HttpResponseRedirect(reverse('posts:post_detail', args=(post_id,)))
-        if form.is_valid():
-            form.save()
+    else:
+        form = PostForm(instance=post)
+    if form.is_valid():
+        form.save()
         return HttpResponseRedirect(reverse('posts:post_detail', args=(post_id,)))
     context = {
         'form': form,
