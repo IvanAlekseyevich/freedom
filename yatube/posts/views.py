@@ -9,25 +9,16 @@ from .forms import PostForm
 
 def index(request):
     post_list = Post.objects.all()
-    # Если порядок сортировки определен в классе Meta модели,
-    # запрос будет выглядить так:
-    # post_list = Post.objects.all()
     # Показывать по 10 записей на странице.
     paginator = Paginator(post_list, 10) 
-
     # Из URL извлекаем номер запрошенной страницы - это значение параметра page
     page_number = request.GET.get('page')
-
     # Получаем набор записей для страницы с запрошенным номером
     page_obj = paginator.get_page(page_number)
     # Отдаем в словаре контекста
     context = {
         'page_obj': page_obj,
     }
-    # posts = Post.objects.order_by('-pub_date')[:10]
-    # context = {
-    #     'posts': posts,
-    # }
     template = 'posts/index.html'
     return render(request, template, context) 
 
