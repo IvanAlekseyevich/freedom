@@ -63,25 +63,22 @@ def post_detail(request, post_id):
 @login_required
 def post_create(request):
     template = 'posts/create_post.html'
-    if request.method == 'POST':
-        form = PostForm(request.POST)
-        if form.is_valid():
-            post = form.save(commit=False)
-            post.author = request.user
-            post.save()
-            return HttpResponseRedirect(reverse('posts:profile', args=(request.user,)))
-
-        # Если условие if form.is_valid() ложно и данные не прошли валидацию - 
-        # передадим полученный объект в шаблон,
-        # чтобы показать пользователю информацию об ошибке
-        # Заодно заполним все поля формы данными, прошедшими валидацию, 
-        # чтобы не заставлять пользователя вносить их повторно
+    # Если пришёл GET-запрос - создаём и передаём в шаблон пустую форму
+    if request.method == 'GET':
+        form = PostForm()
         return render(request, template, {'form': form})
-
-    # Если пришёл не POST-запрос - создаём и передаём в шаблон пустую форму
-    # пусть пользователь напишет что-нибудь
-    form = PostForm()
-    return render(request, template, {'form': form}) 
+    form = PostForm(request.POST)
+    if form.is_valid():
+        post = form.save(commit=False)
+        post.author = request.user
+        post.save()
+        return HttpResponseRedirect(reverse('posts:profile', args=(request.user,)))
+    # Если условие if form.is_valid() ложно и данные не прошли валидацию - 
+    # передадим полученный объект в шаблон,
+    # чтобы показать пользователю информацию об ошибке
+    # Заодно заполним все поля формы данными, прошедшими валидацию, 
+    # чтобы не заставлять пользователя вносить их повторно
+    return render(request, template, {'form': form})
 
 def post_edit(request, post_id):
     post = get_object_or_404(Post, id=post_id)
