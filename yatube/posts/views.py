@@ -7,7 +7,6 @@ from .models import Post, Group, User
 from .forms import PostForm
 
 
-
 def index(request):
     post_list = Post.objects.all()
     # Если порядок сортировки определен в классе Meta модели,
@@ -62,12 +61,10 @@ def profile(request, username):
 
 def post_detail(request, post_id):
     post_detail = get_object_or_404(Post, id=post_id)
-    # post_detail = Post.objects.get(pk=post.id)
     count = Post.objects.filter(author=post_detail.author).count()
     context = {
         'count': count,
         'post_detail': post_detail,
-        # 'post': post,
     }
     template = 'posts/post_detail.html'
     return render(request, template, context)
@@ -75,40 +72,17 @@ def post_detail(request, post_id):
 @login_required
 def post_create(request):
     template = 'posts/create_post.html'
-    # Проверяем, получен POST-запрос или какой-то другой:
     if request.method == 'POST':
-        # Создаём объект формы класса ContactForm
-        # и передаём в него полученные данные
         form = PostForm(request.POST)
-
-        # Если все данные формы валидны - работаем с "очищенными данными" формы
         if form.is_valid():
-            # Берём валидированные данные формы из словаря form.cleaned_data
-            # text = form.cleaned_data['text']
-            # group = form.cleaned_data['group']
-            # # При необходимости обрабатываем данные
-            # new_post = Post.objects.create(
-            #     author=request.user, 
-            #     text=text, 
-            #     group=group
-            # )
-            # # сохраняем объект в базу
-            # new_post.save()
-            
-            # Функция redirect перенаправляет пользователя 
-            # на другую страницу сайта, чтобы защититься 
-            # от повторного заполнения формы
             post = form.save(commit=False)
             post.author = request.user
-            # post.text = form.cleaned_data['text']
             post.save()
-            # return redirect (f'/profile/{request.user}/')
             return HttpResponseRedirect(reverse('posts:profile', args=(request.user,)))
 
         # Если условие if form.is_valid() ложно и данные не прошли валидацию - 
         # передадим полученный объект в шаблон,
         # чтобы показать пользователю информацию об ошибке
-
         # Заодно заполним все поля формы данными, прошедшими валидацию, 
         # чтобы не заставлять пользователя вносить их повторно
         return render(request, template, {'form': form})
@@ -121,17 +95,14 @@ def post_create(request):
 def post_edit(request, post_id):
     post = get_object_or_404(Post, id=post_id)
     if request.method == 'GET' and request.user != post.author:
-        # return redirect (f'/posts/{post_id}/')
         return HttpResponseRedirect(reverse('posts:post_detail', args=(post_id,)))
     form = PostForm(instance=post)
     if request.method == 'POST':
         form = PostForm(request.POST, instance=post)
         if request.user != post.author:
-            # return redirect (f'/posts/{post_id}/')
             return HttpResponseRedirect(reverse('posts:post_detail', args=(post_id,)))
         if form.is_valid():
             form.save()
-        # return redirect (f'/posts/{post_id}/')
         return HttpResponseRedirect(reverse('posts:post_detail', args=(post_id,)))
     context = {
         'form': form,
