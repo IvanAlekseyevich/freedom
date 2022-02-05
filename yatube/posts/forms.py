@@ -7,4 +7,3 @@ class PostForm(forms.ModelForm):
         model = Post
         # укажем, какие поля должны быть видны в форме и в каком порядке
         fields = ('text', 'group')
-        labels = {'text':'Введите текст', 'group':'Выберите группу'}
