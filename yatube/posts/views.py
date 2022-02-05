@@ -84,10 +84,7 @@ def post_edit(request, post_id):
     post = get_object_or_404(Post, id=post_id)
     if request.user != post.author:
         return HttpResponseRedirect(reverse('posts:post_detail', args=(post_id,)))
-    if request.method == 'POST':
-        form = PostForm(request.POST, instance=post)
-    else:
-        form = PostForm(instance=post)
+    form = PostForm(request.POST, instance=post)
     if form.is_valid():
         form.save()
         return HttpResponseRedirect(reverse('posts:post_detail', args=(post_id,)))
