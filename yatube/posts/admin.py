@@ -5,7 +5,7 @@ from .models import Post, Group
 class PostAdmin(admin.ModelAdmin):
     list_display = (
         'pk',
-        'get_description_text',
+        'text',
         'pub_date',
         'author',
         'group',
