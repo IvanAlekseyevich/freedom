@@ -23,6 +23,5 @@ class GroupAdmin(admin.ModelAdmin):
         'slug',
         'description'
     )
-    pass
 
 admin.site.register(Post, PostAdmin)
