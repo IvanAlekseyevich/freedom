@@ -5,9 +5,21 @@ User = get_user_model()
 
 
 class Group(models.Model):
-    title = models.CharField(verbose_name='Название группы', max_length=200)
-    slug = models.SlugField(verbose_name='Сокращение', unique=True)
-    description = models.TextField(verbose_name='Описание группы')
+    title = models.CharField(
+        verbose_name='Название группы',
+        max_length=200,
+        help_text='Введите название группы')
+    slug = models.SlugField(
+        verbose_name='Сокращение', 
+        unique=True,
+        help_text=(
+            'Укажите уникальный адрес для страницы группы. Используйте только '
+            'латиницу, цифры, дефисы и знаки подчёркивания'
+        ))
+    description = models.TextField(
+        verbose_name='Описание группы',
+        help_text='Введите название группы'
+        )
 
     class Meta:
         verbose_name_plural = 'Группы постов'
@@ -17,7 +29,7 @@ class Group(models.Model):
 
 
 class Post(models.Model):
-    text = models.TextField(verbose_name='Текст поста')
+    text = models.TextField(verbose_name='Текст поста', help_text='Введите текст поста')
     pub_date = models.DateTimeField(verbose_name='Дата публикации', auto_now_add=True)
     author = models.ForeignKey(
         User,
@@ -32,7 +44,8 @@ class Post(models.Model):
         blank=True,
         null=True,
         related_name='posts',
-        verbose_name='Группа'
+        verbose_name='Группа',
+        help_text='Выберите группу'
     )
 
     class Meta:
