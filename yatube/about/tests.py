@@ -40,3 +40,38 @@ class StaticURLTests(TestCase):
     # def test_tech(self):
     #     response = self.guest_client.get('/about/tech/')  
     #     self.assertEqual(response.status_code, 200) 
+
+
+
+# from django.test import TestCase, Client
+# from django.urls import reverse
+# from http import HTTPStatus
+
+
+# class StaticURLTests(TestCase):
+#     def setUp(self):
+#         # Устанавливаем данные для тестирования
+#         # Создаём экземпляр клиента. Он неавторизован.
+#         self.guest_client = Client()
+
+#     def test_urls_available(self):
+#         """Страницы доступны по данным URL-адресам."""
+#         PAGES = (
+#             reverse('about:author'),
+#             reverse('about:tech'),
+#         )
+#         for page in PAGES:
+#             with self.subTest(f'{page=}'):
+#                 # response = self.guest_client.get(page)
+#                 self.assertTrue(HTTPStatus.OK)
+
+#     def test_urls_uses_correct_template(self):
+#         """URL-адреса используют соответствующий шаблон."""
+#         templates_url_names = {
+#             'about/author.html': reverse('about:author'),
+#             'about/tech.html': reverse('about:tech'),
+#         }
+#         for template, url in templates_url_names.items():
+#             with self.subTest(url=url):
+#                 response = self.guest_client.get(url)
+#                 self.assertTemplateUsed(response, template)
