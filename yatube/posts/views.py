@@ -9,7 +9,6 @@ from .forms import PostForm
 
 def index(request):
     post_list = Post.objects.all()
-    # Показывать по 10 записей на странице.
     paginator = Paginator(post_list, 10) 
     # Из URL извлекаем номер запрошенной страницы - это значение параметра page
     page_number = request.GET.get('page')
