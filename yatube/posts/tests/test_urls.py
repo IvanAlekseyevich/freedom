@@ -31,7 +31,7 @@ class PostURLTests(TestCase):
         self.authorized_client.force_login(PostURLTests.user)
 
     def test_post_urls_available(self):
-        """Страницы приложения posts доступны по данным URL-адресам для любого пользователя."""
+        '''Страницы приложения posts доступны по данным URL-адресам для любого пользователя.'''
         PAGES = (
             '/',
             '/group/testslug/',
@@ -43,27 +43,27 @@ class PostURLTests(TestCase):
                 self.assertTrue(HTTPStatus.OK)
 
     def test_post_create_url_exists_at_authorized_user(self):
-        """Страница /create/ приложения posts доступна авторизованному пользователю."""
+        '''Страница /create/ приложения posts доступна авторизованному пользователю.'''
         response = self.authorized_client.get('/create/')
         self.assertEqual(response.status_code, HTTPStatus.OK.value)
 
     def test_post_edit_url_exists_at_author(self):
-        """Страница /edit/ приложения posts доступна автору поста."""
+        '''Страница /edit/ приложения posts доступна автору поста.'''
         response = self.authorized_client.post(f'/posts/{PostURLTests.test_post.id}/edit/')
         self.assertEqual(response.status_code, HTTPStatus.OK.value)
 
     def test_post_url_redirect_anonymous(self):
-        """Страница /create/ приложения posts перенаправляет анонимного пользователя."""
+        '''Страница /create/ приложения posts перенаправляет анонимного пользователя.'''
         response = self.guest_client.get('/create/')
         self.assertEqual(response.status_code, HTTPStatus.FOUND.value)
 
     def test_enexisting_page_url_redirect(self):
-        """Несуществующая страница /enexisting_page/ вернет ошибку 404."""
+        '''Несуществующая страница /enexisting_page/ вернет ошибку 404.'''
         response = self.guest_client.get('/enexisting_page/')
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND.value)
 
     def test_post_urls_uses_correct_template(self):
-        """URL-адреса приложения posts используют соответствующий шаблон."""
+        '''URL-адреса приложения posts используют соответствующий шаблон.'''
         templates_url_names = {
             '/': 'posts/index.html',
             '/group/testslug/': 'posts/group_list.html',
