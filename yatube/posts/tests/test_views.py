@@ -48,10 +48,10 @@ class PostURLTests(TestCase):
         """Views функции приложения posts используют соответствующий шаблон."""
         templates_url_names = {
             reverse('posts:index'): 'posts/index.html',
-            reverse('posts:group_list', kwargs={'slug': PostURLTests.test_group.slug}): 'posts/group_list.html',
-            reverse('posts:profile', kwargs={'username': PostURLTests.user}): 'posts/profile.html',
-            reverse('posts:post_detail', kwargs={'post_id': PostURLTests.test_post.id}): 'posts/post_detail.html',
-            reverse('posts:post_edit', kwargs={'post_id': PostURLTests.test_post.id}): 'posts/create_post.html',
+            reverse('posts:group_list', args=(PostURLTests.test_group.slug,)): 'posts/group_list.html',
+            reverse('posts:profile', args=(PostURLTests.user,)): 'posts/profile.html',
+            reverse('posts:post_detail', args=(PostURLTests.test_post.id,)): 'posts/post_detail.html',
+            reverse('posts:post_edit', args=(PostURLTests.test_post.id,)): 'posts/create_post.html',
             reverse('posts:post_create'): 'posts/create_post.html', 
         }
         for reverse_name, template in templates_url_names.items():
@@ -72,7 +72,7 @@ class PostURLTests(TestCase):
 
     def test_post_group_list_page_show_correct_context(self):
         """Шаблон group_list приложения posts сформирован с правильным контекстом."""
-        response = self.guest_client.get(reverse('posts:group_list', kwargs={'slug': PostURLTests.test_group.slug}))
+        response = self.guest_client.get(reverse('posts:group_list', args=(PostURLTests.test_group.slug,)))
         first_object = response.context['page_obj'][0]
         second_object = response.context['group']
         post_pub_date_0 = first_object.pub_date
@@ -88,7 +88,7 @@ class PostURLTests(TestCase):
 
     def test_post_profile_page_show_correct_context(self):
         """Шаблон profile приложения posts сформирован с правильным контекстом."""
-        response = self.guest_client.get(reverse('posts:profile', kwargs={'username': PostURLTests.user}))
+        response = self.guest_client.get(reverse('posts:profile', args=(PostURLTests.user,)))
         first_object = response.context['page_obj'][0]
         second_object = response.context['count']
         post_pub_date_0 = first_object.pub_date
@@ -102,7 +102,7 @@ class PostURLTests(TestCase):
 
     def test_post_post_detail_page_show_correct_context(self):
         """Шаблон post_detail приложения posts сформирован с правильным контекстом."""
-        response = self.guest_client.get(reverse('posts:post_detail', kwargs={'post_id': PostURLTests.test_post.id}))
+        response = self.guest_client.get(reverse('posts:post_detail', args=(PostURLTests.test_post.id,)))
         first_object = response.context['post_detail']
         second_object = response.context['count']
         post_count_0 = second_object
@@ -130,7 +130,7 @@ class PostURLTests(TestCase):
             
     def test_post_edit_post_page_show_correct_context(self):
         """Шаблон редактирования поста приложения posts сформирован с правильным контекстом."""
-        response = self.authorized_client.get(reverse('posts:post_edit', kwargs={'post_id': PostURLTests.test_post.id}))
+        response = self.authorized_client.get(reverse('posts:post_edit', args=(PostURLTests.test_post.id,)))
         form_fields = {
             'text': forms.fields.CharField,         
             'group': forms.fields.ChoiceField,
@@ -154,24 +154,20 @@ class PostURLTests(TestCase):
 
     def test_post_first_group_page_contains_ten_records(self):
         '''Тест паджинатора, на странице группы 10 постов'''
-        response = self.client.get(reverse('posts:group_list', kwargs={'slug': PostURLTests.test_group.slug}))
-        # Проверка: количество постов на первой странице равно 10. 
+        response = self.client.get(reverse('posts:group_list', args=(PostURLTests.test_group.slug,)))
         self.assertEqual(len(response.context['page_obj']), 10)
 
     def test_post_second_group_page_contains_three_records(self):
         '''Тест паджинатора, на второй странице группы 2 поста'''
-        # Проверка: на второй странице должно быть три поста.
-        response = self.client.get(reverse('posts:group_list', kwargs={'slug': PostURLTests.test_group.slug}) + '?page=2')
+        response = self.client.get(reverse('posts:group_list', args=(PostURLTests.test_group.slug,)) + '?page=2')
         self.assertEqual(len(response.context['page_obj']), 2)
 
     def test_post_first_profile_page_contains_ten_records(self):
         '''Тест паджинатора, на странице профиля 10 постов'''
-        response = self.client.get(reverse('posts:profile', kwargs={'username': PostURLTests.user}))
-        # Проверка: количество постов на первой странице равно 10. 
+        response = self.client.get(reverse('posts:profile', args=(PostURLTests.user,)))
         self.assertEqual(len(response.context['page_obj']), 10)
 
     def test_post_second_profile_page_contains_three_records(self):
         '''Тест паджинатора, на второй странице профиля 3 поста'''
-        # Проверка: на второй странице должно быть три поста.
-        response = self.client.get(reverse('posts:profile', kwargs={'username': PostURLTests.user}) + '?page=2')
+        response = self.client.get(reverse('posts:profile', args=(PostURLTests.user,)) + '?page=2')
         self.assertEqual(len(response.context['page_obj']), 3)
