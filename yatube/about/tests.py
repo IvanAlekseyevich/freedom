@@ -1,26 +1,24 @@
 from django.test import TestCase, Client
 from http import HTTPStatus
+from django.urls import reverse
 
 
-class StaticURLTests(TestCase):
+class AboutURLTests(TestCase):
     def setUp(self):
-        # Устанавливаем данные для тестирования
-        # Создаём экземпляр клиента. Он неавторизован.
         self.guest_client = Client()
 
-    def test_urls_available(self):
-        """Страницы доступны по данным URL-адресам."""
+    def test_about_urls_available(self):
+        """Страницы приложения about доступны по данным URL-адресам."""
         PAGES = (
             '/about/author/',
             '/about/tech/',
         )
         for page in PAGES:
             with self.subTest(f'{page=}'):
-                # response = self.guest_client.get(page)
                 self.assertTrue(HTTPStatus.OK)
 
-    def test_urls_uses_correct_template(self):
-        """URL-адреса используют соответствующий шаблон."""
+    def test_about_urls_uses_correct_template(self):
+        """URL-адреса страниц приложения about используют соответствующий шаблон."""
         templates_url_names = {
             'about/author.html': '/about/author/',
             'about/tech.html': '/about/tech/',
@@ -30,48 +28,13 @@ class StaticURLTests(TestCase):
                 response = self.guest_client.get(url)
                 self.assertTemplateUsed(response, template)
 
-    # def test_author(self):
-    #     # Отправляем запрос через client к главной странице,
-    #     # созданный в setUp()
-    #     response = self.guest_client.get('/about/author/')  
-    #     # Утверждаем, что для прохождения теста код должен быть равен 200
-    #     self.assertEqual(response.status_code, 200) 
-
-    # def test_tech(self):
-    #     response = self.guest_client.get('/about/tech/')  
-    #     self.assertEqual(response.status_code, 200) 
-
-
-
-# from django.test import TestCase, Client
-# from django.urls import reverse
-# from http import HTTPStatus
-
-
-# class StaticURLTests(TestCase):
-#     def setUp(self):
-#         # Устанавливаем данные для тестирования
-#         # Создаём экземпляр клиента. Он неавторизован.
-#         self.guest_client = Client()
-
-#     def test_urls_available(self):
-#         """Страницы доступны по данным URL-адресам."""
-#         PAGES = (
-#             reverse('about:author'),
-#             reverse('about:tech'),
-#         )
-#         for page in PAGES:
-#             with self.subTest(f'{page=}'):
-#                 # response = self.guest_client.get(page)
-#                 self.assertTrue(HTTPStatus.OK)
-
-#     def test_urls_uses_correct_template(self):
-#         """URL-адреса используют соответствующий шаблон."""
-#         templates_url_names = {
-#             'about/author.html': reverse('about:author'),
-#             'about/tech.html': reverse('about:tech'),
-#         }
-#         for template, url in templates_url_names.items():
-#             with self.subTest(url=url):
-#                 response = self.guest_client.get(url)
-#                 self.assertTemplateUsed(response, template)
+    def test_urls_uses_correct_template(self):
+        """В view функциях приложения about используются соответствующий шаблон."""
+        templates_url_names = {
+            reverse('about:author'): 'about/author.html',
+            reverse('about:tech'): 'about/tech.html',
+        }
+        for url, template in templates_url_names.items():
+            with self.subTest(url=url):
+                response = self.guest_client.get(url)
+                self.assertTemplateUsed(response, template)
