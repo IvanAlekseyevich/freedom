@@ -8,7 +8,7 @@ class AboutURLTests(TestCase):
         self.guest_client = Client()
 
     def test_about_urls_available(self):
-        """Страницы приложения about доступны по данным URL-адресам."""
+        '''Страницы приложения about доступны по данным URL-адресам.'''
         PAGES = (
             '/about/author/',
             '/about/tech/',
@@ -18,7 +18,7 @@ class AboutURLTests(TestCase):
                 self.assertTrue(HTTPStatus.OK)
 
     def test_about_urls_uses_correct_template(self):
-        """URL-адреса страниц приложения about используют соответствующий шаблон."""
+        '''URL-адреса страниц приложения about используют соответствующий шаблон.'''
         templates_url_names = {
             'about/author.html': '/about/author/',
             'about/tech.html': '/about/tech/',
@@ -28,8 +28,8 @@ class AboutURLTests(TestCase):
                 response = self.guest_client.get(url)
                 self.assertTemplateUsed(response, template)
 
-    def test_urls_uses_correct_template(self):
-        """В view функциях приложения about используются соответствующий шаблон."""
+    def test_about_views_urls_uses_correct_template(self):
+        '''View функции приложения about используются соответствующий шаблон.'''
         templates_url_names = {
             reverse('about:author'): 'about/author.html',
             reverse('about:tech'): 'about/tech.html',
