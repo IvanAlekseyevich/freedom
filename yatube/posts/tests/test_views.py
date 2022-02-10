@@ -27,9 +27,18 @@ class PostURLTests(TestCase):
             author= cls.user,
             group = cls.test_group
         )
-        for post_num in range(13):
-            cls.test_post.id = post_num
-            cls.test_post.save()
+        for num in range(11):
+            num == Post.objects.create(
+            text='Тестовый пост',
+            pub_date='1854-03-14',
+            author= cls.user,
+            group = cls.test_group
+        )
+        cls.test_post12 = Post.objects.create(
+            text='Тестовый пост',
+            pub_date='1854-03-26',
+            author= cls.user
+        )
 
     def setUp(self):
         # Создаем неавторизованный клиент
@@ -121,8 +130,8 @@ class PostURLTests(TestCase):
         post_text_0 = first_object.text
         post_pub_date_0 = first_object.pub_date
         post_author_0 = first_object.author
-        self.assertEqual(post_text_0, PostURLTests.test_post.text)
-        self.assertEqual(post_pub_date_0, PostURLTests.test_post.pub_date)
+        self.assertEqual(post_text_0, PostURLTests.test_post12.text)
+        self.assertEqual(post_pub_date_0, PostURLTests.test_post12.pub_date)
         self.assertEqual(post_author_0, PostURLTests.user)
 
     # Проверяем, что словарь context страницы /
@@ -139,8 +148,8 @@ class PostURLTests(TestCase):
         post_author_0 = first_object.author
         group_title_0 = second_object.title
         post_text_0 = first_object.text
-        self.assertEqual(post_text_0, PostURLTests.test_post.text)
-        self.assertEqual(post_pub_date_0, PostURLTests.test_post.pub_date)
+        self.assertEqual(post_text_0, PostURLTests.test_post12.text)
+        self.assertEqual(post_pub_date_0, PostURLTests.test_post12.pub_date)
         self.assertEqual(post_author_0, PostURLTests.user)
         self.assertEqual(group_description_0, PostURLTests.test_group.description)
         self.assertEqual(group_title_0, PostURLTests.test_group.title)
@@ -162,33 +171,55 @@ class PostURLTests(TestCase):
         self.assertEqual(post_count_0 , PostURLTests.test_post.author.posts.count())
 
     def test_profile_page_show_correct_context(self):
-        """Шаблон post_detail сформирован с правильным контекстом."""
-        response = self.guest_client.get(reverse('posts:post_detail', kwargs={'post_id': PostURLTests.test_post.id}))
+        """Шаблон profile сформирован с правильным контекстом."""
+        response = self.guest_client.get(reverse('posts:profile', kwargs={'username': PostURLTests.user}))
         # Взяли первый элемент из списка и проверили, что его содержание
         # совпадает с ожидаемым
-        first_object = response.context['post_detail']
+        first_object = response.context['page_obj'][0]
         second_object = response.context['count']
         post_count_0 = second_object
         post_pub_date_0 = first_object.pub_date
         post_author_0 = first_object.author
         post_text_0 = first_object.text
-        self.assertEqual(post_text_0, PostURLTests.test_post.text)
-        self.assertEqual(post_pub_date_0, PostURLTests.test_post.pub_date)
+        self.assertEqual(post_text_0, PostURLTests.test_post12.text)
+        self.assertEqual(post_pub_date_0, PostURLTests.test_post12.pub_date)
         self.assertEqual(post_author_0, PostURLTests.user)
-        self.assertEqual(post_count_0, PostURLTests.test_post.author.posts.count())
-
-class PaginatorViewsTest(TestCase):
-    '''Тест паджинатора'''
-    def test_first_page_contains_ten_records(self):
+        self.assertEqual(post_count_0, PostURLTests.test_post12.author.posts.count())
+  
+    def test_first_index_page_contains_ten_records(self):
+        '''Тест паджинатора, на главной странице 10 постов'''
         response = self.client.get(reverse('posts:index'))
         # Проверка: количество постов на первой странице равно 10. 
         self.assertEqual(len(response.context['page_obj']), 10)
 
-    def test_second_page_contains_three_records(self):
+    def test_second_index_page_contains_three_records(self):
+        '''Тест паджинатора, на второй странице 3 поста'''
         # Проверка: на второй странице должно быть три поста.
         response = self.client.get(reverse('posts:index') + '?page=2')
-        self.assertEqual(len(response.context['page_obj']), 3) 
+        self.assertEqual(len(response.context['page_obj']), 3)
 
-    # Проверяем, что словарь context страницы /
-    # в первом элементе списка object_list содержит ожидаемые значения 
+    def test_first_group_page_contains_ten_records(self):
+        '''Тест паджинатора, на странице группы 10 постов'''
+        response = self.client.get(reverse('posts:group_list', kwargs={'slug': PostURLTests.test_group.slug}))
+        # Проверка: количество постов на первой странице равно 10. 
+        self.assertEqual(len(response.context['page_obj']), 10)
+
+    def test_second_group_page_contains_three_records(self):
+        '''Тест паджинатора, на второй странице группы 2 поста'''
+        # Проверка: на второй странице должно быть три поста.
+        response = self.client.get(reverse('posts:group_list', kwargs={'slug': PostURLTests.test_group.slug}) + '?page=2')
+        self.assertEqual(len(response.context['page_obj']), 2)
+
+    def test_first_profile_page_contains_ten_records(self):
+        '''Тест паджинатора, на странице профиля 10 постов'''
+        response = self.client.get(reverse('posts:group_list', kwargs={'slug': PostURLTests.test_group.slug}))
+        # Проверка: количество постов на первой странице равно 10. 
+        self.assertEqual(len(response.context['page_obj']), 10)
+
+    def test_second_profile_page_contains_three_records(self):
+        '''Тест паджинатора, на второй странице профиля 2 поста'''
+        # Проверка: на второй странице должно быть три поста.
+        response = self.client.get(reverse('posts:group_list', kwargs={'slug': PostURLTests.test_group.slug}) + '?page=2')
+        self.assertEqual(len(response.context['page_obj']), 2)
+
 
