@@ -51,7 +51,6 @@ class PostFormTests(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK.value)
         self.assertRedirects(response, reverse('posts:profile', args=(self.user.username,)))
         self.assertEqual(Post.objects.count(), posts_count+1)
-        # Проверяем, что создалась запись с заданным текстом
         self.assertTrue(
             Post.objects.filter(
                 text=text
@@ -70,8 +69,6 @@ class PostFormTests(TestCase):
             follow=True
         )
         self.assertEqual(response.status_code, HTTPStatus.OK.value) 
-        # Убедимся, что запись в базе данных не создалась: 
-        # сравним количество записей в Post до и после отправки формы
         self.assertEqual(Post.objects.count(), posts_count)
         # Проверим, что форма вернула ошибку с ожидаемым текстом:
         # из объекта responce берём словарь 'form', 
