@@ -39,8 +39,9 @@ class PostURLTests(TestCase):
             f'/posts/{PostURLTests.test_post.id}/',
         )
         for page in PAGES:
-            with self.subTest(f'{page=}'):
-                self.assertTrue(HTTPStatus.OK)
+            with self.subTest(url=page):
+                response = self.guest_client.get(page)
+                self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_post_create_url_exists_at_authorized_user(self):
         '''Страница /create/ приложения posts доступна авторизованному пользователю.'''
