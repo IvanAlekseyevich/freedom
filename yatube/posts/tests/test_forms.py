@@ -14,7 +14,6 @@ class PostFormTests(TestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.user = User.objects.create_user(username='Test_author', first_name='Имя', last_name='Фамилия')
-        # Создадим запись в БД
         cls.test_group = Group.objects.create(
             title='Тестовая группа',
             slug='testslug',
@@ -37,24 +36,21 @@ class PostFormTests(TestCase):
         self.authorized_author = Client()
         self.authorized_author.force_login(PostFormTests.user)
 
-    def test_auth_user_can_publish_post(self):
-        '''Валидная форма создает запись в Post.'''
-        post_count = Post.objects.count()  
+    def test_auth_user_can_create_publish_post(self):
+        '''Авторизованный пользователь создает запись в Post при валидной форме.'''
+        posts_count = Post.objects.count()  
         text = 'Тестовый пост формы'
         form_data = {
-            'text': text,
+            'text': text
         }
         response = self.authorized_client.post(
             reverse('posts:post_create'),
             data=form_data,
             follow=True
         )
-        # Проверяем, сработал ли редирект
+        self.assertEqual(response.status_code, HTTPStatus.OK.value)
         self.assertRedirects(response, reverse('posts:profile', args=(self.user.username,)))
-        # Проверяем, увеличилось ли число постов
-        self.assertEqual(Post.objects.count(), post_count+1)
-        # Проверяем правильный ли у поста автор
-        self.assertEqual(Post.objects.get(id=2).author, self.user)
+        self.assertEqual(Post.objects.count(), posts_count+1)
         # Проверяем, что создалась запись с заданным текстом
         self.assertTrue(
             Post.objects.filter(
@@ -62,9 +58,9 @@ class PostFormTests(TestCase):
             ).exists()
         ) 
         
-    def test_cant_create_none_text_post(self):
-        '''Создание поста с отсутствующим текстом вызывает ошибку'''
-        tasks_count = Post.objects.count()
+    def test_auth_user_cant_create_none_text_post(self):
+        '''Создание поста с отсутствующим текстом вызывает ошибку у авторизованного пользователя'''
+        posts_count = Post.objects.count()
         form_data = {
             'text': '',
         }
@@ -75,8 +71,8 @@ class PostFormTests(TestCase):
         )
         self.assertEqual(response.status_code, HTTPStatus.OK.value) 
         # Убедимся, что запись в базе данных не создалась: 
-        # сравним количество записей в Task до и после отправки формы
-        self.assertEqual(Post.objects.count(), tasks_count)
+        # сравним количество записей в Post до и после отправки формы
+        self.assertEqual(Post.objects.count(), posts_count)
         # Проверим, что форма вернула ошибку с ожидаемым текстом:
         # из объекта responce берём словарь 'form', 
         # указываем ожидаемую ошибку для поля 'text' этого словаря
@@ -87,8 +83,9 @@ class PostFormTests(TestCase):
             'Обязательное поле.'
         )
 
-    def test_edit_post(self):
-        '''Валидная форма при редактировании поста изменяет запись в базе.''' 
+    def test_auth_author_edit_post_correct(self):
+        '''Валидная форма при редактировании поста автором изменяет запись в базе.'''
+        posts_count = Post.objects.count()
         text = 'Новый тестовый пост'
         form_data = {
             'text': text,
@@ -98,6 +95,9 @@ class PostFormTests(TestCase):
             data=form_data,
             follow=True
         )
+        self.assertEqual(response.status_code, HTTPStatus.OK.value)
         self.assertRedirects(response, reverse('posts:post_detail', args=(PostFormTests.test_post.id,)))
-        # Проверяем, изменился ли текст поста
-        self.assertEqual(Post.objects.get(id=1).text, text)
+        self.assertEqual(Post.objects.get(id=PostFormTests.test_post.id).text, text)
+        self.assertEqual(Post.objects.count(), posts_count)
+        self.assertEqual(Post.objects.get(id=PostFormTests.test_post.id).author, PostFormTests.user)
+        self.assertIsNone(Post.objects.get(id=PostFormTests.test_post.id).group)
