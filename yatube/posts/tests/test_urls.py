@@ -22,7 +22,6 @@ class PostURLTests(TestCase):
             pub_date='1854-03-14',
             author= cls.user,
             group=cls.group
-
         )
 
     def setUp(self):
@@ -30,8 +29,8 @@ class PostURLTests(TestCase):
         self.authorized_client = Client()
         self.authorized_client.force_login(PostURLTests.user)
 
-    def test_post_urls_available(self):
-        '''Страницы приложения posts доступны по данным URL-адресам для любого пользователя.'''
+    def test_post_urls_unauth_user_available(self):
+        '''Страницы приложения posts доступны по данным URL-адресам для всех пользователей.'''
         PAGES = (
             '/',
             '/group/testslug/',
