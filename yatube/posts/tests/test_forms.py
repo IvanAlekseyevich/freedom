@@ -38,7 +38,8 @@ class PostFormTests(TestCase):
 
     def test_auth_user_can_create_publish_post(self):
         '''Авторизованный пользователь создает запись в Post при валидной форме.'''
-        posts_count = Post.objects.count()  
+        posts_count = Post.objects.count()
+        author_post_count = Post.objects.filter(author=self.user).count()
         text = 'Тестовый пост формы'
         form_data = {
             'text': text
@@ -51,6 +52,7 @@ class PostFormTests(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK.value)
         self.assertRedirects(response, reverse('posts:profile', args=(self.user.username,)))
         self.assertEqual(Post.objects.count(), posts_count+1)
+        self.assertEqual(Post.objects.filter(author=self.user).count(), author_post_count+1)
         self.assertTrue(
             Post.objects.filter(
                 text=text
