@@ -20,8 +20,9 @@ class UserURLTests(TestCase):
             '/auth/password_reset/',
         )
         for page in PAGES:
-            with self.subTest(f'{page=}'):
-                self.assertTrue(HTTPStatus.OK)
+            with self.subTest(url=page):
+                response = self.guest_client.get(page)
+                self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_user_reset_password_url_exists_at_authorized_user(self):
         '''Страница /auth/password_change/ приложения users доступна авторизованному пользователю.'''
