@@ -16,7 +16,7 @@ class PostURLTests(TestCase):
         super().setUpClass()
         cls.date = datetime.now()
         # Создадим запись в БД для проверки доступности адресов
-        cls.user = User.objects.create_user(username='Test_author', first_name='Имя', last_name='Фамилия')
+        cls.user = User.objects.create_user(username='Test_author')
         cls.test_group = Group.objects.create(
             title='Тестовая группа',
             slug='testslug',
