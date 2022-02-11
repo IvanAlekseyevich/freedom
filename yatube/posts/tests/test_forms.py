@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 from django.urls import reverse
+from http import HTTPStatus
 
 from posts.forms import PostForm
 from posts.models import Post, Group
@@ -36,27 +37,28 @@ class PostFormTests(TestCase):
         self.authorized_author = Client()
         self.authorized_author.force_login(PostFormTests.user)
 
-    def test_create_post(self):
+    def test_auth_user_can_publish_post(self):
         '''Валидная форма создает запись в Post.'''
-        # Подсчитаем количество записей в Post
         post_count = Post.objects.count()  
+        text = 'Тестовый пост формы'
         form_data = {
-            'text': 'Тестовый пост формы',
+            'text': text,
         }
-        # Отправляем POST-запрос
         response = self.authorized_client.post(
             reverse('posts:post_create'),
             data=form_data,
             follow=True
         )
         # Проверяем, сработал ли редирект
-        self.assertRedirects(response, reverse('posts:profile', args=('Test_user',)))
+        self.assertRedirects(response, reverse('posts:profile', args=(self.user.username,)))
         # Проверяем, увеличилось ли число постов
         self.assertEqual(Post.objects.count(), post_count+1)
+        # Проверяем правильный ли у поста автор
+        self.assertEqual(Post.objects.get(id=2).author, self.user)
         # Проверяем, что создалась запись с заданным текстом
         self.assertTrue(
             Post.objects.filter(
-                text='Тестовый пост формы'
+                text=text
             ).exists()
         ) 
         
@@ -71,6 +73,7 @@ class PostFormTests(TestCase):
             data=form_data,
             follow=True
         )
+        self.assertEqual(response.status_code, HTTPStatus.OK.value) 
         # Убедимся, что запись в базе данных не создалась: 
         # сравним количество записей в Task до и после отправки формы
         self.assertEqual(Post.objects.count(), tasks_count)
@@ -83,8 +86,6 @@ class PostFormTests(TestCase):
             'text',
             'Обязательное поле.'
         )
-        # Проверим, что ничего не упало и страница отдаёт код 200
-        self.assertEqual(response.status_code, 200) 
 
     def test_edit_post(self):
         '''Валидная форма при редактировании поста изменяет запись в базе.''' 
