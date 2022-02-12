@@ -28,7 +28,7 @@ class AboutURLViewsTests(TestCase):
             with self.subTest(url=url):
                 response = self.guest_client.get(url)
                 self.assertTemplateUsed(response, template)
-                
+
     def test_about_views_reverse_name_uses_correct_template(self):
         """View функции приложения about используются соответствующий шаблон."""
         templates_url_names = {
