@@ -71,12 +71,7 @@ class PostModelTest(TestCase):
                 self.assertEqual(
                     self.__class__.group._meta.get_field(field).help_text, expected_value)
 
-    def test_models_have_correct_object_text_post(self):
-        """Проверяем, что у модели post корректно работает __str__."""
-        post = self.__class__.post
-        self.assertEqual(post.text, str(post))
-
-    def test_models_have_correct_object_title_group(self):
-        """Проверяем, что у модели group корректно работает __str__."""
-        group = self.__class__.group
-        self.assertEqual(group.title, str(group))
+    def test_models_have_correct_metod_str(self):
+        """Проверяем, что у модели post и group корректно работает __str__."""
+        self.assertEqual(self.__class__.post.text, str(self.__class__.post))
+        self.assertEqual(self.__class__.group.title, str(self.__class__.group))
