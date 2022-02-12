@@ -22,8 +22,8 @@ class PostFormTests(TestCase):
         cls.test_post = Post.objects.create(
             text='Тестовый пост',
             pub_date='1854-03-14',
-            author= cls.user,
-            group = cls.test_group
+            author=cls.user,
+            group=cls.test_group
         )
         # Создаем форму, если нужна проверка атрибутов
         cls.form = PostForm()
@@ -37,7 +37,7 @@ class PostFormTests(TestCase):
         self.authorized_author.force_login(PostFormTests.user)
 
     def test_auth_user_can_create_publish_post(self):
-        '''Авторизованный пользователь создает запись в Post при валидной форме.'''
+        """Авторизованный пользователь создает запись в Post при валидной форме."""
         posts_count = Post.objects.count()
         author_post_count = Post.objects.filter(author=self.user).count()
         text = 'Тестовый пост формы'
@@ -50,17 +50,17 @@ class PostFormTests(TestCase):
             follow=True
         )
         self.assertEqual(response.status_code, HTTPStatus.OK.value)
-        self.assertEqual(Post.objects.count(), posts_count+1)
+        self.assertEqual(Post.objects.count(), posts_count + 1)
         self.assertRedirects(response, reverse('posts:profile', args=(self.user.username,)))
-        self.assertEqual(Post.objects.filter(author=self.user).count(), author_post_count+1)
+        self.assertEqual(Post.objects.filter(author=self.user).count(), author_post_count + 1)
         self.assertTrue(
             Post.objects.filter(
                 text=text
             ).exists()
-        ) 
-        
+        )
+
     def test_auth_user_cant_create_none_text_post(self):
-        '''Создание поста с отсутствующим текстом вызывает ошибку у авторизованного пользователя'''
+        """Создание поста с отсутствующим текстом вызывает ошибку у авторизованного пользователя"""
         posts_count = Post.objects.count()
         form_data = {
             'text': '',
@@ -70,20 +70,20 @@ class PostFormTests(TestCase):
             data=form_data,
             follow=True
         )
-        self.assertEqual(response.status_code, HTTPStatus.OK.value) 
+        self.assertEqual(response.status_code, HTTPStatus.OK.value)
         self.assertEqual(Post.objects.count(), posts_count)
         # Проверим, что форма вернула ошибку с ожидаемым текстом:
         # из объекта responce берём словарь 'form', 
         # указываем ожидаемую ошибку для поля 'text' этого словаря
         self.assertFormError(
-            response, 
+            response,
             'form',
             'text',
             'Обязательное поле.'
         )
 
     def test_auth_author_edit_post_correct(self):
-        '''Валидная форма при редактировании поста автором изменяет запись в базе.'''
+        """Валидная форма при редактировании поста автором изменяет запись в базе."""
         posts_count = Post.objects.count()
         text = 'Новый тестовый пост'
         form_data = {
