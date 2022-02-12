@@ -24,4 +24,5 @@ class GroupAdmin(admin.ModelAdmin):
         'description'
     )
 
+
 admin.site.register(Post, PostAdmin)
