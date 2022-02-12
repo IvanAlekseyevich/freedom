@@ -10,7 +10,7 @@ class Group(models.Model):
         max_length=200,
         help_text='Введите название группы')
     slug = models.SlugField(
-        verbose_name='Сокращение', 
+        verbose_name='Сокращение',
         unique=True,
         help_text=(
             'Укажите уникальный адрес для страницы группы. Используйте только '
@@ -19,7 +19,7 @@ class Group(models.Model):
     description = models.TextField(
         verbose_name='Описание группы',
         help_text='Введите название группы'
-        )
+    )
 
     class Meta:
         verbose_name_plural = 'Группы постов'

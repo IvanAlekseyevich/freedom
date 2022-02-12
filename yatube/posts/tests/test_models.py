@@ -27,7 +27,7 @@ class PostModelTest(TestCase):
         field_verboses = {
             'title': 'Название группы',
             'slug': 'Сокращение',
-            'description': 'Описание группы',          
+            'description': 'Описание группы',
         }
         for field, expected_value in field_verboses.items():
             with self.subTest(field=field):
@@ -40,7 +40,7 @@ class PostModelTest(TestCase):
             'text': 'Текст поста',
             'pub_date': 'Дата публикации',
             'author': 'Автор',
-            'group': 'Группа',           
+            'group': 'Группа',
         }
         for field, expected_value in field_verboses.items():
             with self.subTest(field=field):
@@ -51,7 +51,7 @@ class PostModelTest(TestCase):
         """help_text в полях post совпадает с ожидаемым."""
         field_help_texts = {
             'text': 'Введите текст поста',
-            'group': 'Выберите группу',             
+            'group': 'Выберите группу',
         }
         for field, expected_value in field_help_texts.items():
             with self.subTest(field=field):
@@ -74,9 +74,9 @@ class PostModelTest(TestCase):
     def test_models_have_correct_object_text_post(self):
         """Проверяем, что у модели post корректно работает __str__."""
         post = self.__class__.post
-        self.assertEqual(post.text, str(post)) 
+        self.assertEqual(post.text, str(post))
 
     def test_models_have_correct_object_title_group(self):
         """Проверяем, что у модели group корректно работает __str__."""
         group = self.__class__.group
-        self.assertEqual(group.title, str(group)) 
+        self.assertEqual(group.title, str(group))
