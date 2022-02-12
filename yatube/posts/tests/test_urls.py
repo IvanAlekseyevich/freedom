@@ -26,8 +26,11 @@ class PostURLTests(TestCase):
 
     def setUp(self):
         self.guest_client = Client()
+        self.user = User.objects.create_user(username='Test_user')
         self.authorized_client = Client()
-        self.authorized_client.force_login(PostURLTests.user)
+        self.authorized_client.force_login(self.user)
+        self.authorized_author = Client()
+        self.authorized_author.force_login(PostURLTests.user)
 
     def test_post_urls_unauth_user_available(self):
         '''Страницы приложения posts доступны по данным URL-адресам для всех пользователей.'''
@@ -47,15 +50,20 @@ class PostURLTests(TestCase):
         response = self.authorized_client.get('/create/')
         self.assertEqual(response.status_code, HTTPStatus.OK.value)
 
-    def test_post_edit_url_exists_at_author(self):
-        '''Страница /edit/ приложения posts доступна автору поста.'''
-        response = self.authorized_client.post(f'/posts/{PostURLTests.test_post.id}/edit/')
-        self.assertEqual(response.status_code, HTTPStatus.OK.value)
-
     def test_post_url_redirect_anonymous(self):
         '''Страница /create/ приложения posts перенаправляет анонимного пользователя.'''
         response = self.guest_client.get('/create/')
         self.assertEqual(response.status_code, HTTPStatus.FOUND.value)
+
+    def test_post_edit_url_exists_at_author(self):
+        '''Страница /edit/ приложения posts доступна автору поста.'''
+        response = self.authorized_author.post(f'/posts/{PostURLTests.test_post.id}/edit/')
+        self.assertEqual(response.status_code, HTTPStatus.OK.value)
+
+    def test_post_edit_url_redirect_no_author(self):
+        '''Страница /edit/ приложения posts перенаправляет не автора поста.'''
+        response = self.authorized_client.post(f'/posts/{PostURLTests.test_post.id}/edit/')
+        self.assertEqual(response.status_code, HTTPStatus.FOUND.value)    
 
     def test_enexisting_page_url_redirect(self):
         '''Несуществующая страница /enexisting_page/ вернет ошибку 404.'''
@@ -74,5 +82,5 @@ class PostURLTests(TestCase):
         }
         for url, template in templates_url_names.items():
             with self.subTest(url=url):
-                response = self.authorized_client.get(url)
+                response = self.authorized_author.get(url)
                 self.assertTemplateUsed(response, template)
