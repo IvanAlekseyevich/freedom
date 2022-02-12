@@ -18,7 +18,7 @@ class PostModelTest(TestCase):
         )
         cls.post = Post.objects.create(
             author=cls.user,
-            text='Тестовая группа',
+            text='Тестовый пост',
             group=cls.group,
         )
 
@@ -73,5 +73,5 @@ class PostModelTest(TestCase):
 
     def test_models_have_correct_metod_str(self):
         """Проверяем, что у модели post и group корректно работает __str__."""
-        self.assertEqual(PostModelTest.post.text, str(PostModelTest.post))
-        self.assertEqual(PostModelTest.group.title, str(PostModelTest.group))
+        self.assertEqual(str(PostModelTest.post.text), 'Тестовый пост')
+        self.assertEqual(str(PostModelTest.group.title), 'Название группы')
