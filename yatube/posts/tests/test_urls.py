@@ -30,15 +30,15 @@ class PostURLTests(TestCase):
         self.user = User.objects.create_user(username='Test_user')
         self.authorized_client.force_login(self.user)
         self.author_client = Client()
-        self.author_client.force_login(self.__class__.test_author)
+        self.author_client.force_login(PostURLTests.test_author)
 
     def test_post_urls_unauth_user_available(self):
         """Страницы приложения posts доступны по данным URL-адресам для всех пользователей."""
         pages = (
             '/',
-            f'/group/{self.__class__.test_group.slug}/',
-            f'/profile/{self.__class__.test_author.username}/',
-            f'/posts/{self.__class__.test_post.id}/',
+            f'/group/{PostURLTests.test_group.slug}/',
+            f'/profile/{PostURLTests.test_author.username}/',
+            f'/posts/{PostURLTests.test_post.id}/',
         )
         for page in pages:
             with self.subTest(url=page):
@@ -57,12 +57,12 @@ class PostURLTests(TestCase):
 
     def test_post_edit_url_exists_at_author(self):
         """Страница /edit/ приложения posts доступна автору поста."""
-        response = self.author_client.post(f'/posts/{self.__class__.test_post.id}/edit/')
+        response = self.author_client.post(f'/posts/{PostURLTests.test_post.id}/edit/')
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_post_edit_url_redirect_no_author(self):
         """Страница /edit/ приложения posts перенаправляет не автора поста."""
-        response = self.authorized_client.post(f'/posts/{self.__class__.test_post.id}/edit/')
+        response = self.authorized_client.post(f'/posts/{PostURLTests.test_post.id}/edit/')
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
 
     def test_enexisting_page_url_redirect(self):
@@ -74,10 +74,10 @@ class PostURLTests(TestCase):
         """URL-адреса приложения posts используют соответствующий шаблон."""
         templates_url_names = {
             '/': 'posts/index.html',
-            f'/group/{self.__class__.test_group.slug}/': 'posts/group_list.html',
-            f'/profile/{self.__class__.test_author.username}/': 'posts/profile.html',
-            f'/posts/{self.__class__.test_post.id}/': 'posts/post_detail.html',
-            f'/posts/{self.__class__.test_post.id}/edit/': 'posts/create_post.html',
+            f'/group/{PostURLTests.test_group.slug}/': 'posts/group_list.html',
+            f'/profile/{PostURLTests.test_author.username}/': 'posts/profile.html',
+            f'/posts/{PostURLTests.test_post.id}/': 'posts/post_detail.html',
+            f'/posts/{PostURLTests.test_post.id}/edit/': 'posts/create_post.html',
             '/create/': 'posts/create_post.html',
         }
         for url, template in templates_url_names.items():

@@ -34,7 +34,7 @@ class PostFormTests(TestCase):
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
         self.author_client = Client()
-        self.author_client.force_login(self.__class__.test_author)
+        self.author_client.force_login(PostFormTests.test_author)
 
     def test_auth_user_can_create_publish_post(self):
         """Авторизованный пользователь создает запись в Post при валидной форме."""
@@ -42,7 +42,7 @@ class PostFormTests(TestCase):
         text = 'Тестовый пост формы'
         form_data = {
             'text': text,
-            'group': {1: self.__class__.test_group.title}
+            'group': {1: PostFormTests.test_group.title}
         }
         response = self.authorized_client.post(
             reverse('posts:post_create'),
@@ -53,7 +53,7 @@ class PostFormTests(TestCase):
         self.assertEqual(Post.objects.count(), posts_count + 1)
         self.assertRedirects(response, reverse('posts:profile', args=(self.user.username,)))
         self.assertEqual(Post.objects.latest('pub_date').author, self.user)
-        self.assertEqual(Post.objects.latest('pub_date').group, self.__class__.test_group)
+        self.assertEqual(Post.objects.latest('pub_date').group, PostFormTests.test_group)
         self.assertTrue(
             Post.objects.filter(
                 text=text
@@ -91,13 +91,13 @@ class PostFormTests(TestCase):
             'text': text,
         }
         response = self.author_client.post(
-            reverse('posts:post_edit', args=(self.__class__.test_post.id,)),
+            reverse('posts:post_edit', args=(PostFormTests.test_post.id,)),
             data=form_data,
             follow=True
         )
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertRedirects(response, reverse('posts:post_detail', args=(self.__class__.test_post.id,)))
-        self.assertEqual(Post.objects.get(id=self.__class__.test_post.id).text, text)
+        self.assertRedirects(response, reverse('posts:post_detail', args=(PostFormTests.test_post.id,)))
+        self.assertEqual(Post.objects.get(id=PostFormTests.test_post.id).text, text)
         self.assertEqual(Post.objects.count(), posts_count)
-        self.assertEqual(Post.objects.get(id=self.__class__.test_post.id).author, self.__class__.test_author)
-        self.assertIsNone(Post.objects.get(id=self.__class__.test_post.id).group)
+        self.assertEqual(Post.objects.get(id=PostFormTests.test_post.id).author, PostFormTests.test_author)
+        self.assertIsNone(Post.objects.get(id=PostFormTests.test_post.id).group)

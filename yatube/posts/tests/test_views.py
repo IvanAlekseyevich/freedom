@@ -10,7 +10,7 @@ from posts.models import Post, Group
 User = get_user_model()
 
 
-class PostURLTests(TestCase):
+class PostViewTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -30,20 +30,20 @@ class PostURLTests(TestCase):
         # Создаем второй клиент
         self.authorized_client = Client()
         # Авторизуем пользователя
-        self.authorized_client.force_login(self.__class__.test_author)
+        self.authorized_client.force_login(PostViewTests.test_author)
         self.test_post = Post.objects.create(
             text='Тестовый пост',
-            pub_date=self.__class__.date,
-            author=self.__class__.test_author,
-            group=self.__class__.test_group
+            pub_date=PostViewTests.date,
+            author=PostViewTests.test_author,
+            group=PostViewTests.test_group
         )
 
     def test_post_views_urls_uses_correct_template(self):
         """Views функции приложения posts используют соответствующий шаблон."""
         templates_url_names = {
             reverse('posts:index'): 'posts/index.html',
-            reverse('posts:group_list', args=(self.__class__.test_group.slug,)): 'posts/group_list.html',
-            reverse('posts:profile', args=(self.__class__.test_author.username,)): 'posts/profile.html',
+            reverse('posts:group_list', args=(PostViewTests.test_group.slug,)): 'posts/group_list.html',
+            reverse('posts:profile', args=(PostViewTests.test_author.username,)): 'posts/profile.html',
             reverse('posts:post_detail', args=(self.test_post.id,)): 'posts/post_detail.html',
             reverse('posts:post_edit', args=(self.test_post.id,)): 'posts/create_post.html',
             reverse('posts:post_create'): 'posts/create_post.html',
@@ -64,18 +64,18 @@ class PostURLTests(TestCase):
 
     def test_post_group_list_page_show_correct_context(self):
         """Шаблон group_list приложения posts сформирован с правильным контекстом."""
-        response = self.guest_client.get(reverse('posts:group_list', args=(self.__class__.test_group.slug,)))
+        response = self.guest_client.get(reverse('posts:group_list', args=(PostViewTests.test_group.slug,)))
         context_post = response.context['page_obj'][0]
         context_group = response.context['group']
         self.assertEqual(context_post.text, self.test_post.text)
         self.assertEqual(context_post.pub_date, self.test_post.pub_date)
         self.assertEqual(context_post.author, self.test_post.author)
-        self.assertEqual(context_group.description, self.__class__.test_group.description)
-        self.assertEqual(context_group.title, self.__class__.test_group.title)
+        self.assertEqual(context_group.description, PostViewTests.test_group.description)
+        self.assertEqual(context_group.title, PostViewTests.test_group.title)
 
     def test_post_profile_page_show_correct_context(self):
         """Шаблон profile приложения posts сформирован с правильным контекстом."""
-        response = self.guest_client.get(reverse('posts:profile', args=(self.__class__.test_author.username,)))
+        response = self.guest_client.get(reverse('posts:profile', args=(PostViewTests.test_author.username,)))
         context_post = response.context['page_obj'][0]
         context_count = response.context['count']
         self.assertEqual(context_post.text, self.test_post.text)
@@ -125,15 +125,15 @@ class PostURLTests(TestCase):
         second_page_amount = 3
         posts = [
             Post(
-                text=f'text {num}', author=self.__class__.test_author,
-                group=self.__class__.test_group
+                text=f'text {num}', author=PostViewTests.test_author,
+                group=PostViewTests.test_group
             ) for num in range(1, paginator_amount + second_page_amount)
         ]
         Post.objects.bulk_create(posts)
         paginator_page = (
             reverse('posts:index'),
-            reverse('posts:group_list', args=(self.__class__.test_group.slug,)),
-            reverse('posts:profile', args=(self.__class__.test_author,)),
+            reverse('posts:group_list', args=(PostViewTests.test_group.slug,)),
+            reverse('posts:profile', args=(PostViewTests.test_author,)),
         )
         for reverse_name in paginator_page:
             with self.subTest(reverse_name=reverse_name):
