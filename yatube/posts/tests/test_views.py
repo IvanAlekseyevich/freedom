@@ -48,7 +48,7 @@ class PostURLTests(TestCase):
         templates_url_names = {
             reverse('posts:index'): 'posts/index.html',
             reverse('posts:group_list', args=(self.__class__.test_group.slug,)): 'posts/group_list.html',
-            reverse('posts:profile', args=(self.__class__.test_author,)): 'posts/profile.html',
+            reverse('posts:profile', args=(self.__class__.test_author.username,)): 'posts/profile.html',
             reverse('posts:post_detail', args=(self.__class__.test_post.id,)): 'posts/post_detail.html',
             reverse('posts:post_edit', args=(self.__class__.test_post.id,)): 'posts/create_post.html',
             reverse('posts:post_create'): 'posts/create_post.html',
@@ -87,7 +87,7 @@ class PostURLTests(TestCase):
 
     def test_post_profile_page_show_correct_context(self):
         """Шаблон profile приложения posts сформирован с правильным контекстом."""
-        response = self.guest_client.get(reverse('posts:profile', args=(self.__class__.test_author,)))
+        response = self.guest_client.get(reverse('posts:profile', args=(self.__class__.test_author.username,)))
         first_object = response.context['page_obj'][0]
         second_object = response.context['count']
         post_pub_date_0 = first_object.pub_date
