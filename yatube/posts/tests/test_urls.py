@@ -37,7 +37,7 @@ class PostURLTests(TestCase):
         pages = (
             '/',
             f'/group/{self.__class__.test_group.slug}/',
-            f'/profile/{self.__class__.test_author}/',
+            f'/profile/{self.__class__.test_author.username}/',
             f'/posts/{self.__class__.test_post.id}/',
         )
         for page in pages:
@@ -75,7 +75,7 @@ class PostURLTests(TestCase):
         templates_url_names = {
             '/': 'posts/index.html',
             f'/group/{self.__class__.test_group.slug}/': 'posts/group_list.html',
-            f'/profile/{self.__class__.test_author}/': 'posts/profile.html',
+            f'/profile/{self.__class__.test_author.username}/': 'posts/profile.html',
             f'/posts/{self.__class__.test_post.id}/': 'posts/post_detail.html',
             f'/posts/{self.__class__.test_post.id}/edit/': 'posts/create_post.html',
             '/create/': 'posts/create_post.html',
