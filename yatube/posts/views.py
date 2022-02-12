@@ -1,10 +1,11 @@
-from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.http import HttpResponseRedirect
-from django.urls import reverse
 from django.shortcuts import render, get_object_or_404
-from .models import Post, Group, User
+from django.urls import reverse
+
 from .forms import PostForm
+from .models import Post, Group, User
 
 
 def index(request):
