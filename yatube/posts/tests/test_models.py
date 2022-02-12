@@ -24,7 +24,7 @@ class PostModelTest(TestCase):
 
     def test_verbose_name_group(self):
         """verbose_name в полях group совпадает с ожидаемым."""
-        task = PostModelTest.group
+        task = self.__class__.group
         field_verboses = {
             'title': 'Название группы',
             'slug': 'Сокращение',
@@ -37,7 +37,7 @@ class PostModelTest(TestCase):
 
     def test_verbose_name_post(self):
         """verbose_name в полях post совпадает с ожидаемым."""
-        task = PostModelTest.post
+        task = self.__class__.post
         field_verboses = {
             'text': 'Текст поста',
             'pub_date': 'Дата публикации',
@@ -51,7 +51,7 @@ class PostModelTest(TestCase):
 
     def test_help_text_post(self):
         """help_text в полях post совпадает с ожидаемым."""
-        task = PostModelTest.post
+        task = self.__class__.post
         field_help_texts = {
             'text': 'Введите текст поста',
             'group': 'Выберите группу',             
@@ -63,7 +63,7 @@ class PostModelTest(TestCase):
 
     def test_help_text_group(self):
         """help_text в полях group совпадает с ожидаемым."""
-        task = PostModelTest.group
+        task = self.__class__.group
         field_help_texts = {
             'title': 'Введите название группы',
             'slug': ('Укажите уникальный адрес для страницы группы. Используйте только '
@@ -77,10 +77,10 @@ class PostModelTest(TestCase):
 
     def test_models_have_correct_object_text_post(self):
         """Проверяем, что у модели post корректно работает __str__."""
-        post = PostModelTest.post
+        post = self.__class__.post
         self.assertEqual(post.text, str(post)) 
 
     def test_models_have_correct_object_title_group(self):
         """Проверяем, что у модели group корректно работает __str__."""
-        group = PostModelTest.group
+        group = self.__class__.group
         self.assertEqual(group.title, str(group)) 

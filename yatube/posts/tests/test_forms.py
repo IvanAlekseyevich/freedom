@@ -13,7 +13,7 @@ class PostFormTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.user = User.objects.create_user(username='Test_author')
+        cls.test_author = User.objects.create_user(username='Test_author')
         cls.test_group = Group.objects.create(
             title='Тестовая группа',
             slug='testslug',
@@ -22,7 +22,7 @@ class PostFormTests(TestCase):
         cls.test_post = Post.objects.create(
             text='Тестовый пост',
             pub_date='1854-03-14',
-            author=cls.user,
+            author=cls.test_author,
             group=cls.test_group
         )
         # Создаем форму, если нужна проверка атрибутов
@@ -33,8 +33,8 @@ class PostFormTests(TestCase):
         self.user = User.objects.create_user(username='Test_user')
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
-        self.authorized_author = Client()
-        self.authorized_author.force_login(PostFormTests.user)
+        self.author_client = Client()
+        self.author_client.force_login(self.__class__.test_author)
 
     def test_auth_user_can_create_publish_post(self):
         """Авторизованный пользователь создает запись в Post при валидной форме."""
@@ -49,7 +49,7 @@ class PostFormTests(TestCase):
             data=form_data,
             follow=True
         )
-        self.assertEqual(response.status_code, HTTPStatus.OK.value)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertEqual(Post.objects.count(), posts_count + 1)
         self.assertRedirects(response, reverse('posts:profile', args=(self.user.username,)))
         self.assertEqual(Post.objects.filter(author=self.user).count(), author_post_count + 1)
@@ -70,7 +70,7 @@ class PostFormTests(TestCase):
             data=form_data,
             follow=True
         )
-        self.assertEqual(response.status_code, HTTPStatus.OK.value)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertEqual(Post.objects.count(), posts_count)
         # Проверим, что форма вернула ошибку с ожидаемым текстом:
         # из объекта responce берём словарь 'form', 
@@ -89,14 +89,14 @@ class PostFormTests(TestCase):
         form_data = {
             'text': text,
         }
-        response = self.authorized_author.post(
-            reverse('posts:post_edit', args=(PostFormTests.test_post.id,)),
+        response = self.author_client.post(
+            reverse('posts:post_edit', args=(self.__class__.test_post.id,)),
             data=form_data,
             follow=True
         )
-        self.assertEqual(response.status_code, HTTPStatus.OK.value)
-        self.assertRedirects(response, reverse('posts:post_detail', args=(PostFormTests.test_post.id,)))
-        self.assertEqual(Post.objects.get(id=PostFormTests.test_post.id).text, text)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertRedirects(response, reverse('posts:post_detail', args=(self.__class__.test_post.id,)))
+        self.assertEqual(Post.objects.get(id=self.__class__.test_post.id).text, text)
         self.assertEqual(Post.objects.count(), posts_count)
-        self.assertEqual(Post.objects.get(id=PostFormTests.test_post.id).author, PostFormTests.user)
-        self.assertIsNone(Post.objects.get(id=PostFormTests.test_post.id).group)
+        self.assertEqual(Post.objects.get(id=self.__class__.test_post.id).author, self.__class__.test_author)
+        self.assertIsNone(Post.objects.get(id=self.__class__.test_post.id).group)
