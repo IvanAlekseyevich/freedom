@@ -50,8 +50,8 @@ class PostFormTests(TestCase):
             follow=True
         )
         self.assertEqual(response.status_code, HTTPStatus.OK.value)
-        self.assertRedirects(response, reverse('posts:profile', args=(self.user.username,)))
         self.assertEqual(Post.objects.count(), posts_count+1)
+        self.assertRedirects(response, reverse('posts:profile', args=(self.user.username,)))
         self.assertEqual(Post.objects.filter(author=self.user).count(), author_post_count+1)
         self.assertTrue(
             Post.objects.filter(
