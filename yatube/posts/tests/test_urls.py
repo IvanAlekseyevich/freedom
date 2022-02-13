@@ -87,6 +87,6 @@ class PostURLTests(TestCase):
             PostURLTests.post_create_url: 'posts/create_post.html',
         }
         for url, template in templates_url_names.items():
-            with self.subTest(url=url):
+            with self.subTest(url=url, template=template):
                 response = self.author_client.get(url)
                 self.assertTemplateUsed(response, template)
