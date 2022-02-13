@@ -70,8 +70,8 @@ class PostViewTests(TestCase):
         self.assertEqual(context_post.text, self.test_post.text)
         self.assertEqual(context_post.pub_date, self.test_post.pub_date)
         self.assertEqual(context_post.author, self.test_post.author)
-        self.assertEqual(context_group.description, PostViewTests.test_group.description)
-        self.assertEqual(context_group.title, PostViewTests.test_group.title)
+        self.assertEqual(context_group.description, self.test_post.group.description)
+        self.assertEqual(context_group.title, self.test_post.group.title)
 
     def test_post_profile_page_show_correct_context(self):
         """Шаблон profile приложения posts сформирован с правильным контекстом."""
