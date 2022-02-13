@@ -40,7 +40,7 @@ class PostFormTests(TestCase):
         text = 'Тестовый пост формы'
         form_data = {
             'text': text,
-            'group': {1}
+            'group': {PostFormTests.test_group.id}
         }
         response = self.authorized_client.post(
             reverse('posts:post_create'),
