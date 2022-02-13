@@ -18,7 +18,7 @@ class PostModelTest(TestCase):
         )
         cls.post = Post.objects.create(
             author=cls.user,
-            text='Тестовый постаааааааааааааааааа',
+            text='Тестовый поста',
             group=cls.group,
         )
 
