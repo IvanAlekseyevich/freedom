@@ -64,10 +64,3 @@ class UserURLTests(TestCase):
                 response = self.authorized_client.get(url)
                 self.assertEqual(response.status_code, HTTPStatus.OK)
                 self.assertTemplateUsed(response, template)
-
-    def test_user_url_login_user_correct_template(self):
-        """URL-адрес /login/ приложения users использует соответствующий шаблон."""
-        response = self.guest_client.get(UserURLTests.login_url)
-        template = 'users/login.html'
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertTemplateUsed(response, template)

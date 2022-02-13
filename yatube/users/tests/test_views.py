@@ -1,3 +1,5 @@
+from http import HTTPStatus
+
 from django import forms
 from django.contrib.auth import get_user_model
 from django.test import TestCase, Client
@@ -42,4 +44,5 @@ class UserViewsTests(TestCase):
         for reverse_name, template in templates_url_names.items():
             with self.subTest(url=reverse_name):
                 response = self.authorized_client.get(reverse_name)
+                self.assertEqual(response.status_code, HTTPStatus.OK)
                 self.assertTemplateUsed(response, template)
