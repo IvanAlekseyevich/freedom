@@ -51,8 +51,8 @@ class PostViewTests(TestCase):
         for reverse_name, template in templates_url_names.items():
             with self.subTest(reverse_name=reverse_name):
                 response = self.authorized_client.get(reverse_name)
-                self.assertTemplateUsed(response, template)
                 self.assertEqual(response.status_code, HTTPStatus.OK)
+                self.assertTemplateUsed(response, template)
 
     def test_1(self):
         """Проверка правильного вывода контекста поста в шаблоны"""

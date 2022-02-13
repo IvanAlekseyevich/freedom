@@ -89,4 +89,5 @@ class PostURLTests(TestCase):
         for url, template in templates_url_names.items():
             with self.subTest(url=url, template=template):
                 response = self.author_client.get(url)
+                self.assertEqual(response.status_code, HTTPStatus.OK)
                 self.assertTemplateUsed(response, template)
