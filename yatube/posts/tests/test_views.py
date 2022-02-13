@@ -54,7 +54,7 @@ class PostViewTests(TestCase):
                 self.assertEqual(response.status_code, HTTPStatus.OK)
                 self.assertTemplateUsed(response, template)
 
-    def test_1(self):
+    def test_post_list_page_show_correct_context(self):
         """Проверка правильного вывода контекста поста в шаблоны"""
         reversed_name = {
             'posts:index': None,
