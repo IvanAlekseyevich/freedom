@@ -99,18 +99,17 @@ class PostViewTests(TestCase):
             'posts:post_edit': (self.test_post.id,)
         }
         for reversed_name, args in reversed_name.items():
-            with self.subTest(reverse=reverse(reversed_name, args=args)):
-                response = self.authorized_client.get(reverse(reversed_name, args=args))
-                form_fields = {
-                    'text': forms.fields.CharField,
-                    # При создании формы поля модели типа TextField
-                    # преобразуются в CharField с виджетом forms.Textarea
-                    'group': forms.fields.ChoiceField,
-                }
-                for value, expected in form_fields.items():
-                    with self.subTest(value=value):
-                        form_field = response.context.get('form').fields.get(value)
-                        self.assertIsInstance(form_field, expected)
+            response = self.authorized_client.get(reverse(reversed_name, args=args))
+            form_fields = {
+                'text': forms.fields.CharField,
+                # При создании формы поля модели типа TextField
+                # преобразуются в CharField с виджетом forms.Textarea
+                'group': forms.fields.ChoiceField,
+            }
+            for value, expected in form_fields.items():
+                with self.subTest(reverse=reverse(reversed_name, args=args), value=value):
+                    form_field = response.context.get('form').fields.get(value)
+                    self.assertIsInstance(form_field, expected)
 
     def test_paginator_in_pages_with_posts(self):
         """Тест паджинатора на страницах с постами"""
@@ -129,13 +128,12 @@ class PostViewTests(TestCase):
             'posts:profile': (PostViewTests.test_author,),
         }
         for reverse_name, args in paginator_page.items():
-            with self.subTest(reverse=reverse(reverse_name, args=args)):
-                post_page = {
-                    paginator_amount: '',
-                    second_page_amount: '?page=2'
-                }
-                for amount, page in post_page.items():
-                    with self.subTest(amount=amount):
-                        response = self.guest_client.get(reverse(reverse_name, args=args) + page)
-                        self.assertEqual(response.status_code, HTTPStatus.OK)
-                        self.assertEqual(len(response.context['page_obj']), amount)
+            post_page = {
+                paginator_amount: '',
+                second_page_amount: '?page=2'
+            }
+            for amount, page in post_page.items():
+                with self.subTest(reverse=reverse(reverse_name, args=args), amount=amount, page=page):
+                    response = self.guest_client.get(reverse(reverse_name, args=args) + page)
+                    self.assertEqual(response.status_code, HTTPStatus.OK)
+                    self.assertEqual(len(response.context['page_obj']), amount)
