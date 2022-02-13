@@ -25,8 +25,6 @@ class PostFormTests(TestCase):
             author=cls.test_author,
             group=cls.test_group
         )
-        # Создаем форму, если нужна проверка атрибутов
-        cls.form = PostForm()
 
     def setUp(self):
         self.guest_client = Client()
@@ -42,7 +40,7 @@ class PostFormTests(TestCase):
         text = 'Тестовый пост формы'
         form_data = {
             'text': text,
-            'group': {1: PostFormTests.test_group.title}
+            'group': {1}
         }
         response = self.authorized_client.post(
             reverse('posts:post_create'),
