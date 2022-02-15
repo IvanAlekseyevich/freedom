@@ -33,14 +33,13 @@ class Post(models.Model):
     pub_date = models.DateTimeField(verbose_name='Дата публикации', auto_now_add=True)
     author = models.ForeignKey(
         User,
-        models.SET_NULL,
-        null=True,
+        on_delete=models.CASCADE,
         related_name='posts',
         verbose_name='Автор'
     )
     group = models.ForeignKey(
         Group,
-        models.SET_NULL,
+        on_delete=models.SET_NULL,
         blank=True,
         null=True,
         related_name='posts',
@@ -61,3 +60,23 @@ class Post(models.Model):
 
     def __str__(self):
         return self.text[:15]
+
+
+class Comment(models.Model):
+    text = models.TextField(verbose_name='Текст комментария', help_text='Введите текст комментария')
+    created = models.DateTimeField(verbose_name='Дата публикации', auto_now_add=True)
+    post = models.ForeignKey(
+        Post,
+        on_delete=models.CASCADE,
+        related_name='comments',
+        verbose_name='Пост'
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='comments',
+        verbose_name='Автор'
+    )
+
+    class Meta:
+        verbose_name_plural = 'Комментарии'
