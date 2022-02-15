@@ -1,15 +1,21 @@
+import shutil
+import tempfile
 from datetime import datetime
 from http import HTTPStatus
 
 from django import forms
+from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.test import TestCase, Client
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 from posts.models import Post, Group
 
 User = get_user_model()
+TEMP_MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
 
 
+@override_settings(MEDIA_ROOT=TEMP_MEDIA_ROOT)
 class PostViewTests(TestCase):
     @classmethod
     def setUpClass(cls):
@@ -22,6 +28,27 @@ class PostViewTests(TestCase):
             slug='testslug',
             description='Тестовое описание'
         )
+        small_gif = (
+            b'\x47\x49\x46\x38\x39\x61\x01\x00'
+            b'\x01\x00\x00\x00\x00\x21\xf9\x04'
+            b'\x01\x0a\x00\x01\x00\x2c\x00\x00'
+            b'\x00\x00\x01\x00\x01\x00\x00\x02'
+            b'\x02\x4c\x01\x00\x3b'
+        )
+        cls.uploaded = SimpleUploadedFile(
+            name='small.gif',
+            content=small_gif,
+            content_type='image/gif'
+        )
+
+    @classmethod
+    def tearDownClass(cls):
+        super().tearDownClass()
+        # Модуль shutil - библиотека Python с прекрасными инструментами
+        # для управления файлами и директориями:
+        # создание, удаление, копирование, перемещение, изменение папок и файлов
+        # Метод shutil.rmtree удаляет директорию и всё её содержимое
+        shutil.rmtree(TEMP_MEDIA_ROOT, ignore_errors=True)
 
     def setUp(self):
         self.guest_client = Client()
@@ -29,13 +56,13 @@ class PostViewTests(TestCase):
         # self.user = User.objects.create_user(username='Test_user')
         # Создаем второй клиент
         self.authorized_client = Client()
-        # Авторизуем пользователя
         self.authorized_client.force_login(PostViewTests.test_author)
         self.test_post = Post.objects.create(
             text='Тестовый пост',
             pub_date=PostViewTests.date,
             author=PostViewTests.test_author,
-            group=PostViewTests.test_group
+            group=PostViewTests.test_group,
+            image=PostViewTests.uploaded
         )
 
     def test_post_views_urls_uses_correct_template(self):
@@ -68,6 +95,7 @@ class PostViewTests(TestCase):
                 self.assertEqual(context_post.text, self.test_post.text)
                 self.assertEqual(context_post.pub_date, self.test_post.pub_date)
                 self.assertEqual(context_post.author, self.test_post.author)
+                self.assertEqual(context_post.image, self.test_post.image)
 
     def test_post_group_list_page_show_correct_context(self):
         """Шаблон group_list приложения posts сформирован с правильным контекстом."""
@@ -90,6 +118,7 @@ class PostViewTests(TestCase):
         self.assertEqual(context_post.text, self.test_post.text)
         self.assertEqual(context_post.pub_date, self.test_post.pub_date)
         self.assertEqual(context_post.author, self.test_post.author)
+        self.assertEqual(context_post.image, self.test_post.image)
         self.assertEqual(context_count, self.test_post.author.posts.count())
 
     def test_post_create_post_page_show_correct_context(self):
@@ -105,6 +134,7 @@ class PostViewTests(TestCase):
                 # При создании формы поля модели типа TextField
                 # преобразуются в CharField с виджетом forms.Textarea
                 'group': forms.fields.ChoiceField,
+                'image': forms.fields.ImageField,
             }
             for value, expected in form_fields.items():
                 with self.subTest(reverse=reverse(reversed_name, args=args), value=value):

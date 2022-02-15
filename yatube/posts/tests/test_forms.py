@@ -1,14 +1,19 @@
+import shutil
+import tempfile
 from http import HTTPStatus
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.test import Client, TestCase
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import Client, TestCase, override_settings
 from django.urls import reverse
-from posts.forms import PostForm
 from posts.models import Post, Group
 
 User = get_user_model()
+TEMP_MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
 
 
+@override_settings(MEDIA_ROOT=TEMP_MEDIA_ROOT)
 class PostFormTests(TestCase):
     @classmethod
     def setUpClass(cls):
@@ -34,13 +39,35 @@ class PostFormTests(TestCase):
         self.author_client = Client()
         self.author_client.force_login(PostFormTests.test_author)
 
+    @classmethod
+    def tearDownClass(cls):
+        super().tearDownClass()
+        # Модуль shutil - библиотека Python с прекрасными инструментами
+        # для управления файлами и директориями:
+        # создание, удаление, копирование, перемещение, изменение папок и файлов
+        # Метод shutil.rmtree удаляет директорию и всё её содержимое
+        shutil.rmtree(TEMP_MEDIA_ROOT, ignore_errors=True)
+
     def test_auth_user_can_create_publish_post(self):
         """Авторизованный пользователь создает запись в Post при валидной форме."""
         posts_count = Post.objects.count()
+        small_gif = (
+            b'\x47\x49\x46\x38\x39\x61\x01\x00'
+            b'\x01\x00\x00\x00\x00\x21\xf9\x04'
+            b'\x01\x0a\x00\x01\x00\x2c\x00\x00'
+            b'\x00\x00\x01\x00\x01\x00\x00\x02'
+            b'\x02\x4c\x01\x00\x3b'
+        )
+        uploaded = SimpleUploadedFile(
+            name='small.gif',
+            content=small_gif,
+            content_type='image/gif'
+        )
         text = 'Тестовый пост формы'
         form_data = {
             'text': text,
-            'group': {PostFormTests.test_group.id}
+            'group': {PostFormTests.test_group.id},
+            'image': uploaded,
         }
         response = self.authorized_client.post(
             reverse('posts:post_create'),
@@ -54,7 +81,9 @@ class PostFormTests(TestCase):
         self.assertEqual(Post.objects.latest('pub_date').group, PostFormTests.test_group)
         self.assertTrue(
             Post.objects.filter(
-                text=text
+                text=text,
+                group=PostFormTests.test_group.id,
+                image='posts/small.gif'
             ).exists()
         )
 
@@ -72,7 +101,7 @@ class PostFormTests(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertEqual(Post.objects.count(), posts_count)
         # Проверим, что форма вернула ошибку с ожидаемым текстом:
-        # из объекта responce берём словарь 'form', 
+        # из объекта responce берём словарь 'form',
         # указываем ожидаемую ошибку для поля 'text' этого словаря
         self.assertFormError(
             response,
