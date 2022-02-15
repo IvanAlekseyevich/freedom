@@ -8,7 +8,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
-from ..models import Post, Group
+from ..models import Post, Group, Comment
 
 User = get_user_model()
 TEMP_MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
@@ -129,3 +129,25 @@ class PostFormTests(TestCase):
         self.assertEqual(Post.objects.count(), posts_count)
         self.assertEqual(Post.objects.get(id=PostFormTests.test_post.id).author, PostFormTests.test_author)
         self.assertIsNone(Post.objects.get(id=PostFormTests.test_post.id).group)
+
+    def test_auth_user_can_create_comment(self):
+        """Авторизованный пользователь может комментировать посты."""
+        comments_count = Comment.objects.count()
+        text = 'Тестовый комментарий'
+        form_data = {
+            'text': text,
+        }
+        response = self.authorized_client.post(
+            reverse('posts:add_comment', args=(PostFormTests.test_post.id,)),
+            data=form_data,
+            follow=True
+        )
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertEqual(Comment.objects.count(), comments_count + 1)
+        self.assertRedirects(response, reverse('posts:post_detail', args=(PostFormTests.test_post.id,)))
+        self.assertEqual(Comment.objects.latest('created').author, self.user)
+        self.assertTrue(
+            Comment.objects.filter(
+                text=text,
+            ).exists()
+        )

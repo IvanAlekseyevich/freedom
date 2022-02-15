@@ -30,6 +30,7 @@ class PostURLTests(TestCase):
         cls.post_edit_url = f'/posts/{PostURLTests.test_post.id}/edit/'
         cls.post_profile_url = f'/profile/{PostURLTests.test_author.username}/'
         cls.group_list_url = f'/group/{PostURLTests.test_group.slug}/'
+        cls.post_comment_url = f'/posts/{PostURLTests.test_post.id}/comment/'
 
     def setUp(self):
         self.guest_client = Client()
@@ -57,7 +58,7 @@ class PostURLTests(TestCase):
         response = self.authorized_client.get(PostURLTests.post_create_url)
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
-    def test_post_url_redirect_anonymous(self):
+    def test_post_create_url_redirect_anonymous(self):
         """Страница /create/ приложения posts перенаправляет анонимного пользователя."""
         response = self.guest_client.get(PostURLTests.post_create_url)
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
@@ -76,6 +77,11 @@ class PostURLTests(TestCase):
         """Несуществующая страница /enexisting_page/ вернет ошибку 404."""
         response = self.guest_client.get('/enexisting_page/')
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
+
+    def test_post_comment_url_redirect_anonymous(self):
+        """Анонимный пользователь не может комментировать записи."""
+        response = self.guest_client.get(PostURLTests.post_comment_url)
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
 
     def test_post_urls_uses_correct_template(self):
         """URL-адреса приложения posts используют соответствующий шаблон."""

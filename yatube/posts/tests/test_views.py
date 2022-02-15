@@ -10,7 +10,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
-from ..models import Post, Group
+from ..models import Post, Group, Comment
 
 User = get_user_model()
 TEMP_MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
@@ -22,12 +22,36 @@ class PostViewTests(TestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.date = datetime.now()
+        small_gif = (
+            b'\x47\x49\x46\x38\x39\x61\x01\x00'
+            b'\x01\x00\x00\x00\x00\x21\xf9\x04'
+            b'\x01\x0a\x00\x01\x00\x2c\x00\x00'
+            b'\x00\x00\x01\x00\x01\x00\x00\x02'
+            b'\x02\x4c\x01\x00\x3b'
+        )
+        cls.uploaded = SimpleUploadedFile(
+            name='small.gif',
+            content=small_gif,
+            content_type='image/gif'
+        )
         # Создадим запись в БД для проверки доступности адресов
         cls.test_author = User.objects.create_user(username='Test_author')
         cls.test_group = Group.objects.create(
             title='Тестовая группа',
             slug='testslug',
             description='Тестовое описание'
+        )
+        cls.test_post = Post.objects.create(
+            text='Тестовый пост',
+            pub_date=cls.date,
+            author=cls.test_author,
+            group=cls.test_group,
+            image=cls.uploaded
+        )
+        cls.test_comment = Comment.objects.create(
+            author=cls.test_author,
+            post=cls.test_post,
+            text='Тестовый комментарий'
         )
         small_gif = (
             b'\x47\x49\x46\x38\x39\x61\x01\x00'
@@ -58,13 +82,6 @@ class PostViewTests(TestCase):
         # Создаем второй клиент
         self.authorized_client = Client()
         self.authorized_client.force_login(PostViewTests.test_author)
-        self.test_post = Post.objects.create(
-            text='Тестовый пост',
-            pub_date=PostViewTests.date,
-            author=PostViewTests.test_author,
-            group=PostViewTests.test_group,
-            image=PostViewTests.uploaded
-        )
 
     def test_post_views_urls_uses_correct_template(self):
         """Views функции приложения posts используют соответствующий шаблон."""
@@ -93,40 +110,42 @@ class PostViewTests(TestCase):
             with self.subTest(reverse_name=reverse(reverse_name, args=args)):
                 response = self.guest_client.get(reverse(reverse_name, args=args))
                 context_post = response.context['page_obj'][0]
-                self.assertEqual(context_post.text, self.test_post.text)
-                self.assertEqual(context_post.pub_date, self.test_post.pub_date)
-                self.assertEqual(context_post.author, self.test_post.author)
-                self.assertEqual(context_post.image, self.test_post.image)
+                self.assertEqual(context_post.text, PostViewTests.test_post.text)
+                self.assertEqual(context_post.pub_date, PostViewTests.test_post.pub_date)
+                self.assertEqual(context_post.author, PostViewTests.test_post.author)
+                self.assertEqual(context_post.image, PostViewTests.test_post.image)
 
     def test_post_group_list_page_show_correct_context(self):
         """Шаблон group_list приложения posts сформирован с правильным контекстом."""
         response = self.guest_client.get(reverse('posts:group_list', args=(PostViewTests.test_group.slug,)))
         context_group = response.context['group']
-        self.assertEqual(context_group.description, self.test_post.group.description)
-        self.assertEqual(context_group.title, self.test_post.group.title)
+        self.assertEqual(context_group.description, PostViewTests.test_post.group.description)
+        self.assertEqual(context_group.title, PostViewTests.test_post.group.title)
 
     def test_post_profile_page_show_correct_context(self):
         """Шаблон profile приложения posts сформирован с правильным контекстом."""
         response = self.guest_client.get(reverse('posts:profile', args=(PostViewTests.test_author.username,)))
         context_count = response.context['count']
-        self.assertEqual(context_count, self.test_post.author.posts.count())
+        self.assertEqual(context_count, PostViewTests.test_post.author.posts.count())
 
     def test_post_post_detail_page_show_correct_context(self):
         """Шаблон post_detail приложения posts сформирован с правильным контекстом."""
         response = self.guest_client.get(reverse('posts:post_detail', args=(self.test_post.id,)))
         context_post = response.context['post_detail']
         context_count = response.context['count']
-        self.assertEqual(context_post.text, self.test_post.text)
-        self.assertEqual(context_post.pub_date, self.test_post.pub_date)
-        self.assertEqual(context_post.author, self.test_post.author)
-        self.assertEqual(context_post.image, self.test_post.image)
-        self.assertEqual(context_count, self.test_post.author.posts.count())
+        context_comment = response.context['comments'][0]
+        self.assertEqual(context_post.text, PostViewTests.test_post.text)
+        self.assertEqual(context_post.pub_date, PostViewTests.test_post.pub_date)
+        self.assertEqual(context_post.author, PostViewTests.test_post.author)
+        self.assertEqual(context_post.image, PostViewTests.test_post.image)
+        self.assertEqual(context_count, PostViewTests.test_post.author.posts.count())
+        self.assertEqual(context_comment.text, PostViewTests.test_comment.text)
 
     def test_post_create_post_page_show_correct_context(self):
         """Шаблон создания и редактирования поста сформирован с правильным контекстом."""
         reversed_name = {
             'posts:post_create': None,
-            'posts:post_edit': (self.test_post.id,)
+            'posts:post_edit': (PostViewTests.test_post.id,)
         }
         for reversed_name, args in reversed_name.items():
             response = self.authorized_client.get(reverse(reversed_name, args=args))
