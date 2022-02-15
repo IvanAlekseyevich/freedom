@@ -56,9 +56,11 @@ def profile(request, username):
 def post_detail(request, post_id):
     post_detail = get_object_or_404(Post, id=post_id)
     count = post_detail.author.posts.count()
+    image = post_detail.image
     context = {
         'count': count,
         'post_detail': post_detail,
+        'image': image,
     }
     template = 'posts/post_detail.html'
     return render(request, template, context)
