@@ -1,11 +1,9 @@
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.http import HttpResponseRedirect
-from django.shortcuts import render, get_object_or_404
-from django.urls import reverse
+from django.shortcuts import redirect, render, get_object_or_404
 
-from .forms import PostForm
-from .models import Post, Group, User
+from .forms import PostForm, CommentForm
+from .models import Post, Group, User, Comment
 
 
 def index(request):
@@ -56,9 +54,13 @@ def profile(request, username):
 def post_detail(request, post_id):
     post_detail = get_object_or_404(Post, id=post_id)
     count = post_detail.author.posts.count()
+    form = CommentForm(request.POST or None)
+    comments = post_detail.comments.all()
     context = {
         'count': count,
         'post_detail': post_detail,
+        'form': form,
+        'comments': comments
     }
     template = 'posts/post_detail.html'
     return render(request, template, context)
@@ -78,7 +80,7 @@ def post_create(request):
         post = form.save(commit=False)
         post.author = request.user
         post.save()
-        return HttpResponseRedirect(reverse('posts:profile', args=(request.user,)))
+        return redirect('posts:profile', username=request.user)
     # Если условие if form.is_valid() ложно и данные не прошли валидацию - 
     # передадим полученный объект в шаблон,
     # чтобы показать пользователю информацию об ошибке
@@ -90,7 +92,7 @@ def post_create(request):
 def post_edit(request, post_id):
     post = get_object_or_404(Post, id=post_id)
     if request.user != post.author:
-        return HttpResponseRedirect(reverse('posts:post_detail', args=(post_id,)))
+        return redirect('posts:post_detail', post_id=post_id)
     if request.method == 'POST':
         form = PostForm(
             request.POST or None,
@@ -101,7 +103,7 @@ def post_edit(request, post_id):
         form = PostForm(instance=post)
     if form.is_valid():
         form.save()
-        return HttpResponseRedirect(reverse('posts:post_detail', args=(post_id,)))
+        return redirect('posts:post_detail', post_id=post_id)
     context = {
         'form': form,
         'post_id': post_id,
@@ -109,3 +111,15 @@ def post_edit(request, post_id):
     }
     template = 'posts/create_post.html'
     return render(request, template, context)
+
+
+@login_required
+def add_comment(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    form = CommentForm(request.POST or None)
+    if form.is_valid():
+        comment = form.save(commit=False)
+        comment.author = request.user
+        comment.post = post
+        comment.save()
+    return redirect('posts:post_detail', post_id=post_id)

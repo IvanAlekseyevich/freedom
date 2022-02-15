@@ -101,4 +101,3 @@ class PostModelTest(TestCase):
         """Проверяем, что у моделей корректно работает __str__."""
         self.assertEqual(PostModelTest.group.title, str(PostModelTest.group))
         self.assertEqual(PostModelTest.post.text[:15], str(PostModelTest.post))
-
