@@ -1,9 +1,7 @@
 import shutil
 import tempfile
 from datetime import datetime
-from http import HTTPStatus
 
-from django import forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -187,3 +185,11 @@ class PostViewTests(TestCase):
                     response = self.guest_client.get(reverse(reverse_name, args=args) + page)
                     self.assertEqual(response.status_code, HTTPStatus.OK)
                     self.assertEqual(len(response.context['page_obj']), amount)
+
+    def test_caches_index_page(self):
+        """Тестирование кэша страницы index"""
+        response = self.guest_client.get(reverse('posts:index'))
+        origin_post = response.context['page_obj']
+        Post.objects.all().delete()
+        cashes_post = response.context['page_obj']
+        self.assertEqual(cashes_post, origin_post)
