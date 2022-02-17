@@ -3,14 +3,15 @@ import tempfile
 from datetime import datetime
 from http import HTTPStatus
 
+from django import forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
-from django.core.cache import cache
 
-from ..models import Post, Group, Comment
+from ..models import Post, Group, Comment, Follow
 
 User = get_user_model()
 TEMP_MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
@@ -34,7 +35,6 @@ class PostViewTests(TestCase):
             content=small_gif,
             content_type='image/gif'
         )
-        # Создадим запись в БД для проверки доступности адресов
         cls.test_author = User.objects.create_user(username='Test_author')
         cls.test_group = Group.objects.create(
             title='Тестовая группа',
@@ -65,23 +65,23 @@ class PostViewTests(TestCase):
             content=small_gif,
             content_type='image/gif'
         )
+        cls.follow = Follow.objects.create(
+            user=cls.test_author,
+            author=cls.test_author
+        )
 
     @classmethod
     def tearDownClass(cls):
         super().tearDownClass()
-        # Модуль shutil - библиотека Python с прекрасными инструментами
-        # для управления файлами и директориями:
-        # создание, удаление, копирование, перемещение, изменение папок и файлов
-        # Метод shutil.rmtree удаляет директорию и всё её содержимое
         shutil.rmtree(TEMP_MEDIA_ROOT, ignore_errors=True)
 
     def setUp(self):
         self.guest_client = Client()
-        # Создаем пользователя
-        # self.user = User.objects.create_user(username='Test_user')
-        # Создаем второй клиент
         self.authorized_client = Client()
-        self.authorized_client.force_login(PostViewTests.test_author)
+        self.user = User.objects.create_user(username='Test_user')
+        self.authorized_client.force_login(self.user)
+        self.author_client = Client()
+        self.author_client.force_login(PostViewTests.test_author)
 
     def test_post_views_urls_uses_correct_template(self):
         """Views функции приложения posts используют соответствующий шаблон."""
@@ -92,10 +92,12 @@ class PostViewTests(TestCase):
             reverse('posts:post_detail', args=(self.test_post.id,)): 'posts/post_detail.html',
             reverse('posts:post_edit', args=(self.test_post.id,)): 'posts/create_post.html',
             reverse('posts:post_create'): 'posts/create_post.html',
+            reverse('posts:follow_index'): 'posts/follow.html',
         }
         for reverse_name, template in templates_url_names.items():
             with self.subTest(reverse_name=reverse_name):
-                response = self.authorized_client.get(reverse_name)
+                cache.clear()
+                response = self.author_client.get(reverse_name)
                 self.assertEqual(response.status_code, HTTPStatus.OK)
                 self.assertTemplateUsed(response, template)
 
@@ -109,6 +111,7 @@ class PostViewTests(TestCase):
         for reverse_name, args in reversed_name.items():
             with self.subTest(reverse_name=reverse(reverse_name, args=args)):
                 response = self.guest_client.get(reverse(reverse_name, args=args))
+                cache.clear()
                 context_post = response.context['page_obj'][0]
                 self.assertEqual(context_post.text, PostViewTests.test_post.text)
                 self.assertEqual(context_post.pub_date, PostViewTests.test_post.pub_date)
@@ -148,7 +151,7 @@ class PostViewTests(TestCase):
             'posts:post_edit': (PostViewTests.test_post.id,)
         }
         for reversed_name, args in reversed_name.items():
-            response = self.authorized_client.get(reverse(reversed_name, args=args))
+            response = self.author_client.get(reverse(reversed_name, args=args))
             form_fields = {
                 'text': forms.fields.CharField,
                 # При создании формы поля модели типа TextField
@@ -176,6 +179,7 @@ class PostViewTests(TestCase):
             'posts:index': None,
             'posts:group_list': (PostViewTests.test_group.slug,),
             'posts:profile': (PostViewTests.test_author,),
+            'posts:follow_index': None,
         }
         for reverse_name, args in paginator_page.items():
             post_page = {
@@ -184,7 +188,8 @@ class PostViewTests(TestCase):
             }
             for amount, page in post_page.items():
                 with self.subTest(reverse=reverse(reverse_name, args=args), amount=amount, page=page):
-                    response = self.guest_client.get(reverse(reverse_name, args=args) + page)
+                    cache.clear()
+                    response = self.author_client.get(reverse(reverse_name, args=args) + page)
                     self.assertEqual(response.status_code, HTTPStatus.OK)
                     self.assertEqual(len(response.context['page_obj']), amount)
 
@@ -195,3 +200,24 @@ class PostViewTests(TestCase):
         Post.objects.all().delete()
         cashes_post = response.context['page_obj']
         self.assertEqual(cashes_post, origin_post)
+
+    def test_correct_work_follow(self):
+        """Авторизированный пользователь может подписываться и отписываться от авторов."""
+        follow_response = self.authorized_client.get(
+            reverse('posts:profile_follow', args=(PostViewTests.test_author.username,))
+        )
+        follow = Follow.objects.filter(user=self.user, author=PostViewTests.test_author).exists()
+        unfollow_response = self.authorized_client.get(
+            reverse('posts:profile_unfollow', args=(PostViewTests.test_author.username,))
+        )
+        un_follow = Follow.objects.filter(user=self.user, author=PostViewTests.test_author).exists()
+        self.assertRedirects(
+            follow_response,
+            reverse('posts:profile', args=(PostViewTests.test_author.username,))
+        )
+        self.assertTrue(follow)
+        self.assertRedirects(
+            unfollow_response,
+            reverse('posts:profile', args=(PostViewTests.test_author.username,))
+        )
+        self.assertFalse(un_follow)

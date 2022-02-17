@@ -43,8 +43,7 @@ class PostFormTests(TestCase):
     @classmethod
     def tearDownClass(cls):
         super().tearDownClass()
-        # Модуль shutil - библиотека Python с прекрасными инструментами
-        # для управления файлами и директориями:
+        # Модуль shutil - библиотека Python для управления файлами и директориями:
         # создание, удаление, копирование, перемещение, изменение папок и файлов
         # Метод shutil.rmtree удаляет директорию и всё её содержимое
         shutil.rmtree(TEMP_MEDIA_ROOT, ignore_errors=True)
@@ -101,9 +100,6 @@ class PostFormTests(TestCase):
         )
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertEqual(Post.objects.count(), posts_count)
-        # Проверим, что форма вернула ошибку с ожидаемым текстом:
-        # из объекта responce берём словарь 'form',
-        # указываем ожидаемую ошибку для поля 'text' этого словаря
         self.assertFormError(
             response,
             'form',
