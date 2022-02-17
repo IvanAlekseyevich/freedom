@@ -16,7 +16,7 @@ class PostURLTests(TestCase):
         cls.test_author = User.objects.create_user(username='Test_author')
         cls.test_group = Group.objects.create(
             title='Тестовая группа',
-            slug='testslug',
+            slug='test_slug',
             description='Тестовое описание'
         )
         cls.test_post = Post.objects.create(
@@ -79,9 +79,9 @@ class PostURLTests(TestCase):
         response = PostURLTests.authorized_client.post(PostURLTests.post_edit_url)
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
 
-    def test_enexisting_page_url_redirect(self):
-        """Несуществующая страница /enexisting_page/ вернет ошибку 404."""
-        response = PostURLTests.guest_client.get('/enexisting_page/')
+    def test_unexisting_page_url_redirect(self):
+        """Несуществующая страница /unexisting_page/ вернет ошибку 404."""
+        response = PostURLTests.guest_client.get('/unexisting_page/')
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
 
     def test_post_comment_url_redirect_anonymous(self):
@@ -113,6 +113,6 @@ class PostURLTests(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_post_follow_url_redirect_anonymous(self):
-        """Страница подписок недоступна неавторизированному пользователю"""
+        """Страница подписок недоступна не авторизированному пользователю"""
         response = PostURLTests.guest_client.get(PostURLTests.follow_url)
         self.assertEqual(response.status_code, HTTPStatus.FOUND)

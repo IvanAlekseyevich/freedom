@@ -112,7 +112,7 @@ class PostModelTest(TestCase):
         expected_value = 'Введите текст комментария'
         self.assertEqual(PostModelTest.test_comment._meta.get_field(field).help_text, expected_value)
 
-    def test_models_have_correct_metod_str(self):
+    def test_models_have_correct_method_str(self):
         """Проверяем, что у моделей корректно работает __str__."""
         self.assertEqual(PostModelTest.test_group.title, str(PostModelTest.test_group))
         self.assertEqual(PostModelTest.test_post.text[:15], str(PostModelTest.test_post))

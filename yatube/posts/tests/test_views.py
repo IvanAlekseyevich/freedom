@@ -39,7 +39,7 @@ class PostViewTests(TestCase):
         cls.test_user = User.objects.create_user(username='Test_user')
         cls.test_group = Group.objects.create(
             title='Тестовая группа',
-            slug='testslug',
+            slug='test_slug',
             description='Тестовое описание'
         )
         cls.test_post = Post.objects.create(
@@ -153,7 +153,7 @@ class PostViewTests(TestCase):
                     self.assertIsInstance(form_field, expected)
 
     def test_paginator_in_pages_with_posts(self):
-        """Тест паджинатора на страницах с постами"""
+        """Тест paginator на страницах с постами"""
         cache.clear()
         paginator_amount = 10
         second_page_amount = 3
@@ -187,10 +187,10 @@ class PostViewTests(TestCase):
         response = PostViewTests.guest_client.get(reverse('posts:index'))
         origin_post = response.context['page_obj']
         Post.objects.all().delete()
-        cashes_post = response.context['page_obj']
+        caches_post = response.context['page_obj']
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertNotEquals(count_post, 0)
-        self.assertEqual(cashes_post, origin_post)
+        self.assertEqual(caches_post, origin_post)
 
     def test_correct_work_follow(self):
         """Авторизированный пользователь может подписываться и отписываться от авторов постов."""
@@ -208,3 +208,13 @@ class PostViewTests(TestCase):
         self.assertRedirects(follow, reverse('posts:profile', args=(following.username,)))
         self.assertFalse(follow_dont_exists)
         self.assertRedirects(unfollow, reverse('posts:profile', args=(following.username,)))
+
+    def test_follow_page_show_correct_context(self):
+        """На странице подписок не видны сообщения от авторов без подписки"""
+        _test_post = Post.objects.create(
+            text='Тестовый пост',
+            author=PostViewTests.test_user,
+        )
+        response = PostViewTests.author_client.get(reverse('posts:follow_index'))
+        context_post = response.context['page_obj']
+        self.assertEqual(context_post.object_list.count(), 0)
