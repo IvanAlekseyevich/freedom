@@ -42,6 +42,11 @@ class PostURLTests(TestCase):
         self.author_client = Client()
         self.author_client.force_login(PostURLTests.test_author)
 
+    @classmethod
+    def tearDownClass(cls):
+        super().tearDownClass()
+        cache.clear()
+
     def test_post_urls_unauth_user_available(self):
         """Страницы приложения posts доступны по данным URL-адресам для всех пользователей."""
         pages = (
