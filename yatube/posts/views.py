@@ -133,7 +133,7 @@ def add_comment(request, post_id):
 
 @login_required
 def follow_index(request):
-    # информация о текущем пользователе доступна в переменной request.user
+    # информация о текущем пользователе доступна в переменной request.test_user
     # Напишите view-функцию страницы, куда будут выведены посты авторов, на которых подписан текущий пользователь.
     user = User.objects.get(username=request.user).follower.all()
     author = []
