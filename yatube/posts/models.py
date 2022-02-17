@@ -22,7 +22,7 @@ class Group(models.Model):
     )
 
     class Meta:
-        verbose_name_plural = 'Группы постов'
+        verbose_name_plural = 'Группы'
 
     def __str__(self):
         return self.title
@@ -88,9 +88,14 @@ class Follow(models.Model):
         User,
         on_delete=models.CASCADE,
         related_name='follower',
+        verbose_name='Подписчик'
     )
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='following'
+        related_name='following',
+        verbose_name='Автор'
     )
+
+    class Meta:
+        verbose_name_plural = 'Подписки'
