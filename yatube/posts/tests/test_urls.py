@@ -109,6 +109,6 @@ class PostURLTests(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_post_follow_url_redirect_anonymous(self):
-        """Страница подписок не доступна неавторизированному пользователю"""
+        """Страница подписок недоступна неавторизированному пользователю"""
         response = self.guest_client.get(PostURLTests.follow_url)
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
