@@ -34,13 +34,12 @@ class PostURLTests(TestCase):
         cls.post_comment_url = f'/posts/{PostURLTests.test_post.id}/comment/'
         cls.follow_url = '/follow/'
 
-    def setUp(self):
-        self.guest_client = Client()
-        self.authorized_client = Client()
-        self.user = User.objects.create_user(username='Test_user')
-        self.authorized_client.force_login(self.user)
-        self.author_client = Client()
-        self.author_client.force_login(PostURLTests.test_author)
+        cls.guest_client = Client()
+        cls.authorized_client = Client()
+        cls.test_user = User.objects.create_user(username='Test_user')
+        cls.authorized_client.force_login(cls.test_user)
+        cls.author_client = Client()
+        cls.author_client.force_login(PostURLTests.test_author)
 
     @classmethod
     def tearDownClass(cls):
@@ -57,41 +56,42 @@ class PostURLTests(TestCase):
         )
         for page in pages:
             with self.subTest(url=page):
-                response = self.guest_client.get(page)
+                response = PostURLTests.guest_client.get(page)
                 self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_post_create_url_exists_at_authorized_user(self):
         """Страница /create/ приложения posts доступна авторизованному пользователю."""
-        response = self.authorized_client.get(PostURLTests.post_create_url)
+        response = PostURLTests.authorized_client.get(PostURLTests.post_create_url)
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_post_create_url_redirect_anonymous(self):
         """Страница /create/ приложения posts перенаправляет анонимного пользователя."""
-        response = self.guest_client.get(PostURLTests.post_create_url)
+        response = PostURLTests.guest_client.get(PostURLTests.post_create_url)
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
 
     def test_post_edit_url_exists_at_author(self):
         """Страница /edit/ приложения posts доступна автору поста."""
-        response = self.author_client.post(PostURLTests.post_edit_url)
+        response = PostURLTests.author_client.post(PostURLTests.post_edit_url)
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_post_edit_url_redirect_no_author(self):
         """Страница /edit/ приложения posts перенаправляет не автора поста."""
-        response = self.authorized_client.post(PostURLTests.post_edit_url)
+        response = PostURLTests.authorized_client.post(PostURLTests.post_edit_url)
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
 
     def test_enexisting_page_url_redirect(self):
         """Несуществующая страница /enexisting_page/ вернет ошибку 404."""
-        response = self.guest_client.get('/enexisting_page/')
+        response = PostURLTests.guest_client.get('/enexisting_page/')
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
 
     def test_post_comment_url_redirect_anonymous(self):
         """Анонимный пользователь не может комментировать записи."""
-        response = self.guest_client.get(PostURLTests.post_comment_url)
+        response = PostURLTests.guest_client.get(PostURLTests.post_comment_url)
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
 
     def test_post_urls_uses_correct_template(self):
         """URL-адреса приложения posts используют соответствующий шаблон."""
+        cache.clear()
         templates_url_names = {
             PostURLTests.index_page_url: 'posts/index.html',
             PostURLTests.group_list_url: 'posts/group_list.html',
@@ -103,17 +103,16 @@ class PostURLTests(TestCase):
         }
         for url, template in templates_url_names.items():
             with self.subTest(url=url, template=template):
-                cache.clear()
-                response = self.author_client.get(url)
+                response = PostURLTests.author_client.get(url)
                 self.assertEqual(response.status_code, HTTPStatus.OK)
                 self.assertTemplateUsed(response, template)
 
     def test_post_follow_url_exists_at_authorized_user(self):
         """Страница подписок доступна для авторизированного пользователя"""
-        response = self.author_client.get(PostURLTests.follow_url)
+        response = PostURLTests.authorized_client.get(PostURLTests.follow_url)
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_post_follow_url_redirect_anonymous(self):
         """Страница подписок недоступна неавторизированному пользователю"""
-        response = self.guest_client.get(PostURLTests.follow_url)
+        response = PostURLTests.guest_client.get(PostURLTests.follow_url)
         self.assertEqual(response.status_code, HTTPStatus.FOUND)

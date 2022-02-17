@@ -31,6 +31,7 @@ class PostFormTests(TestCase):
             author=cls.test_author,
             group=cls.test_group
         )
+
         cls.guest_client = Client()
         cls.test_user = User.objects.create_user(username='Test_user')
         cls.authorized_client = Client()
