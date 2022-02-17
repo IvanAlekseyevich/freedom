@@ -1,4 +1,5 @@
 from django.contrib import admin
+
 from .models import Post, Group
 
 
@@ -23,6 +24,6 @@ class GroupAdmin(admin.ModelAdmin):
         'slug',
         'description'
     )
-    pass
+
 
 admin.site.register(Post, PostAdmin)
