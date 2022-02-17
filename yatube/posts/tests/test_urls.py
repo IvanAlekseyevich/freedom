@@ -1,6 +1,7 @@
 from http import HTTPStatus
 
 from django.contrib.auth import get_user_model
+from django.core.cache import cache
 from django.test import TestCase, Client
 
 from ..models import Post, Group
@@ -31,6 +32,7 @@ class PostURLTests(TestCase):
         cls.post_profile_url = f'/profile/{PostURLTests.test_author.username}/'
         cls.group_list_url = f'/group/{PostURLTests.test_group.slug}/'
         cls.post_comment_url = f'/posts/{PostURLTests.test_post.id}/comment/'
+        cls.follow_url = '/follow/'
 
     def setUp(self):
         self.guest_client = Client()
@@ -92,9 +94,21 @@ class PostURLTests(TestCase):
             PostURLTests.post_detail_url: 'posts/post_detail.html',
             PostURLTests.post_edit_url: 'posts/create_post.html',
             PostURLTests.post_create_url: 'posts/create_post.html',
+            PostURLTests.follow_url: 'posts/follow.html'
         }
         for url, template in templates_url_names.items():
             with self.subTest(url=url, template=template):
+                cache.clear()
                 response = self.author_client.get(url)
                 self.assertEqual(response.status_code, HTTPStatus.OK)
                 self.assertTemplateUsed(response, template)
+
+    def test_post_follow_url_exists_at_authorized_user(self):
+        """Страница подписок доступна для авторизированного пользователя"""
+        response = self.author_client.get(PostURLTests.follow_url)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+
+    def test_post_follow_url_redirect_anonymous(self):
+        """Страница подписок не доступна неавторизированному пользователю"""
+        response = self.guest_client.get(PostURLTests.follow_url)
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)

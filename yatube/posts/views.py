@@ -44,14 +44,15 @@ def profile(request, username):
     paginator = Paginator(post_list, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    follower = User.objects.get(username=request.user)
     context = {
         'username': user,
         'count': count,
         'page_obj': page_obj,
     }
-    if Follow.objects.filter(author=user, user=follower).exists():
-        context.update({'following': 'following'})
+    if request.user.is_authenticated:
+        follower = User.objects.get(username=request.user)
+        if Follow.objects.filter(author=user, user=follower).exists():
+            context.update({'following': 'following'})
     template = 'posts/profile.html'
     return render(request, template, context)
 
