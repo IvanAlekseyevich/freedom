@@ -18,6 +18,7 @@ def index(request):
     # Отдаем в словаре контекста
     context = {
         'page_obj': page_obj,
+        'index': 'index',
     }
     template = 'posts/index.html'
     return render(request, template, context)
@@ -144,7 +145,8 @@ def follow_index(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     context = {
-        'page_obj': page_obj
+        'page_obj': page_obj,
+        'follow': 'follow',
     }
     template = 'posts/follow.html'
     return render(request, template, context)
