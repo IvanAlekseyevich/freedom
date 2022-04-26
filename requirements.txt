@@ -25,7 +25,9 @@ mypy==0.910
 mypy-extensions==0.4.3
 packaging==20.1
 pep8-naming==0.12.1
+Pillow==9.0.1
 pluggy==0.13.1
+posts==0.2.2
 py==1.8.1
 pycodestyle==2.7.0
 pyflakes==2.3.1

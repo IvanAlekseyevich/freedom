@@ -1,7 +1,8 @@
 {% load static %}
+{% load thumbnail %}
 <!DOCTYPE html>
 <html lang="ru">
-  <head>
+<head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" href="{% static 'img/fav/fav.ico' %}" type="image">
@@ -12,23 +13,23 @@
     <meta name="theme-color" content="#ffffff">
     <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
     <title>{% block title %}{% endblock %}</title>
-  </head>
-  <body>
-    <header>
-      <nav class="navbar navbar-light" style="background-color: lightskyblue">
+</head>
+<body>
+<header>
+    <nav class="navbar navbar-light" style="background-color: lightskyblue">
         <div class="container">
-          {% include 'includes/header.html' %}
+            {% include 'includes/header.html' %}
         </div>
-      </nav>
-    </header>
-    <main>
-      <div class="container py-5">
+    </nav>
+</header>
+<main>
+    <div class="container py-5">
         {% block content %}
         {% endblock %}
-      </div>
-    </main>
-    <footer class="border-top text-center py-3">
-      {% include 'includes/footer.html' %}
-    </footer>
-  </body>
+    </div>
+</main>
+<footer class="border-top text-center py-3 nav-link px-2 text-muted">
+    {% include 'includes/footer.html' %}
+</footer>
+</body>
 </html>

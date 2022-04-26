@@ -1,1 +1,5 @@
-<p>© {{ year }} Copyright <span style="color:red">Ya</span>tube</p>
+<p class="float-end"><a href="#">В начало страницы</a></p>
+<p>&copy; {{ year }} <span style="color:red">Ya</span>tube &middot;
+    <a href="{% url 'about:author' %}">Об авторе</a> &middot;
+    <a href="{% url 'about:tech' %}">Технологии</a>
+</p>

@@ -126,7 +126,8 @@ venv.bak/
 .mypy_cache/
 .dmypy.json
 dmypy.json
-yatube/static/
+media/
+migrations/
 
 # Pyre type checker
 .pyre/

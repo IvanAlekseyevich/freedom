@@ -1,13 +1,13 @@
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.http import HttpResponseRedirect
-from django.shortcuts import render, get_object_or_404
-from django.urls import reverse
+from django.shortcuts import redirect, render, get_object_or_404
+from django.views.decorators.cache import cache_page
 
-from .forms import PostForm
-from .models import Post, Group, User
+from .forms import PostForm, CommentForm
+from .models import Post, Group, User, Follow
 
 
+@cache_page(20)
 def index(request):
     post_list = Post.objects.all()
     paginator = Paginator(post_list, 10)
@@ -18,6 +18,7 @@ def index(request):
     # Отдаем в словаре контекста
     context = {
         'page_obj': page_obj,
+        'index': 'index',
     }
     template = 'posts/index.html'
     return render(request, template, context)
@@ -49,6 +50,10 @@ def profile(request, username):
         'count': count,
         'page_obj': page_obj,
     }
+    if request.user.is_authenticated:
+        follower = User.objects.get(username=request.user)
+        if Follow.objects.filter(author=user, user=follower).exists():
+            context.update({'following': 'following'})
     template = 'posts/profile.html'
     return render(request, template, context)
 
@@ -56,9 +61,13 @@ def profile(request, username):
 def post_detail(request, post_id):
     post_detail = get_object_or_404(Post, id=post_id)
     count = post_detail.author.posts.count()
+    form = CommentForm(request.POST or None)
+    comments = post_detail.comments.all()
     context = {
         'count': count,
         'post_detail': post_detail,
+        'form': form,
+        'comments': comments
     }
     template = 'posts/post_detail.html'
     return render(request, template, context)
@@ -71,12 +80,14 @@ def post_create(request):
     if request.method != 'POST':
         form = PostForm()
         return render(request, template, {'form': form})
-    form = PostForm(request.POST)
+    form = PostForm(request.POST or None,
+                    files=request.FILES or None,
+                    )
     if form.is_valid():
         post = form.save(commit=False)
         post.author = request.user
         post.save()
-        return HttpResponseRedirect(reverse('posts:profile', args=(request.user,)))
+        return redirect('posts:profile', username=request.user)
     # Если условие if form.is_valid() ложно и данные не прошли валидацию - 
     # передадим полученный объект в шаблон,
     # чтобы показать пользователю информацию об ошибке
@@ -88,14 +99,18 @@ def post_create(request):
 def post_edit(request, post_id):
     post = get_object_or_404(Post, id=post_id)
     if request.user != post.author:
-        return HttpResponseRedirect(reverse('posts:post_detail', args=(post_id,)))
+        return redirect('posts:post_detail', post_id=post_id)
     if request.method == 'POST':
-        form = PostForm(request.POST, instance=post)
+        form = PostForm(
+            request.POST or None,
+            files=request.FILES or None,
+            instance=post
+        )
     else:
         form = PostForm(instance=post)
     if form.is_valid():
         form.save()
-        return HttpResponseRedirect(reverse('posts:post_detail', args=(post_id,)))
+        return redirect('posts:post_detail', post_id=post_id)
     context = {
         'form': form,
         'post_id': post_id,
@@ -103,3 +118,60 @@ def post_edit(request, post_id):
     }
     template = 'posts/create_post.html'
     return render(request, template, context)
+
+
+@login_required
+def add_comment(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    form = CommentForm(request.POST or None)
+    if form.is_valid():
+        comment = form.save(commit=False)
+        comment.author = request.user
+        comment.post = post
+        comment.save()
+    return redirect('posts:post_detail', post_id=post_id)
+
+
+@login_required
+def follow_index(request):
+    # информация о текущем пользователе доступна в переменной request.test_user
+    # Напишите view-функцию страницы, куда будут выведены посты авторов, на которых подписан текущий пользователь.
+    user = User.objects.get(username=request.user).follower.all()
+    author = []
+    for i in user:
+        author.append(i.author_id)
+    posts = Post.objects.filter(author__in=author)
+    paginator = Paginator(posts, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    context = {
+        'page_obj': page_obj,
+        'follow': 'follow',
+    }
+    template = 'posts/follow.html'
+    return render(request, template, context)
+
+
+@login_required
+def profile_follow(request, username):
+    follower_user = User.objects.get(username=request.user)
+    following_user = get_object_or_404(User, username=username)
+    Follow.objects.create(
+        user=follower_user,
+        author=following_user
+    )
+    return redirect('posts:profile', username=username)
+    # Подписаться на автора
+
+
+@login_required
+def profile_unfollow(request, username):
+    # Дизлайк, отписка
+    follower_user = User.objects.get(username=request.user)
+    following_user = get_object_or_404(User, username=username)
+    dislike = Follow.objects.filter(
+        user=follower_user,
+        author=following_user
+    )
+    dislike.delete()
+    return redirect('posts:profile', username=username)

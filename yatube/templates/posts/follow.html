@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 {% load thumbnail %}
-{% block title %}Последние обновления на сайте{% endblock %}
+{% block title %}Мои подписки{% endblock %}
 {% block content %}
     {% include 'includes/switcher.html' %}
-    <h1 class="blog-post-title">Последние обновления на сайте</h1>
+    <h1 class="blog-post-title">Мои подписки</h1>
     <article>
         {% for post in page_obj %}
             <div class="p-3 bg-light border rounded-3 bg-gradient text-dark">
@@ -16,8 +16,7 @@
                             {{ post.author.get_full_name }}
                         {% endif %}<br>
                         <a class="btn btn-link" href="{% url 'posts:profile' post.author %}">
-                            все посты пользователя
-                        </a>
+                            все посты пользователя</a>
                     </li>
                     <li>
                         <strong>Дата публикации:</strong> {{ post.pub_date|date:"d E Y" }}
